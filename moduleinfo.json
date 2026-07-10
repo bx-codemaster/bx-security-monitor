@@ -1,0 +1,31 @@
+{
+    "name": "BX Security Monitor",
+    "archiveName": "bx-codemaster/bx-security-monitor",
+    "category": "productivity",
+    "developer": "Axel Benkert",
+    "developerWebsite": "https://www.bx-coding.de",
+    "website": "https://www.der-eisenhans.de",
+    "srcDir": "src",
+    "version": "auto",
+    "shortDescription": "BX Security Monitor",
+    "description": "Das BX Security Monitor-Modul überwacht Sicherheitsaspekte im System und ermöglicht so eine bessere Nachverfolgung und Verwaltung von Sicherheitsvorfällen. Es trägt dazu bei, dass Sicherheitsprobleme leicht identifizierbar sind und im Rahmen der Systemverwaltung effizient bearbeitet werden können.",
+    "price": "free", 
+    "date": "2026-07-10 00:00:00",
+    "php": {
+      "version": "^7.4 || ^8.0"
+    },
+    "modifiedCompatibility": [
+      "3.0.1",
+      "3.0.2",
+      "3.1.0",
+      "3.1.1",
+      "3.1.2",
+      "3.1.3",
+      "3.1.4",
+      "3.1.5",
+      "3.1.6",
+      "3.2.0",
+      "3.2.1",
+      "3.3.0"
+    ]
+}

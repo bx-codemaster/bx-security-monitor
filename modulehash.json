@@ -1,0 +1,30 @@
+{
+    "version": "0.2.0",
+    "scopes": {
+        "shop-root": {
+            "hashes": {
+                "/admin/bx_security_monitor.php": "6af7433ab8948892eb92dba7ec2bf235",
+                "/admin/images/icons/heading/bx-security-monitor.png": "643db82223a52660d128e5a15b1c11f5",
+                "/admin/includes/extra/css/bx_modules.php": "4a525e7fd9c7c0579abb462b54c316eb",
+                "/admin/includes/extra/css/bx_security_monitor.php": "1fcc98af1e9463b6e8e268eade50ded4",
+                "/admin/includes/extra/filenames/bx_security_monitor.php": "6012da6f477c0cc521fa7aabaca8c2c3",
+                "/admin/includes/extra/functions/bx_security_monitor.php": "885134bf2d39f9daff2bcd2ea2f16bff",
+                "/admin/includes/extra/javascript/bx_security_monitor.php": "00cb858617d2fa7c4d9226befd112df1",
+                "/admin/includes/extra/menu/bx_security_monitor.php": "c71b090cae01d5bf076d4af4895a7572",
+                "/admin/includes/modules/system/bx_security_monitor.php": "51e38bbd39c7343ea068c4fbe2c22921",
+                "/includes/extra/application_top/application_top_begin/bx_security_bootstrap.php": "19ac8d01b151c4430162acb73147b447",
+                "/includes/modules/bx_admin_login_guard.php": "88db153f15f0804f5acfec3303c8b69f",
+                "/includes/modules/bx_guard.php": "a15deb88213573004dc5c165aaa04514",
+                "/lang/english/extra/admin/bx_security_monitor.php": "e4d2deb273e9f70ab8feb4b97929e38d",
+                "/lang/english/modules/system/bx_image_magick.php": "cbae6de9112eeb25bbdb842c5e4c3987",
+                "/lang/german/extra/admin/bx_security_monitor.php": "bda1cb52238ef04d025878b8a4b1b354",
+                "/lang/german/modules/system/bx_security_monitor.php": "9347a3f1add9ab90bfc7eadd7d1676c6",
+                "/lang/spanish/extra/admin/bx_image_magick.php": "d25b581f79efce629b880fa0ebacf738",
+                "/lang/spanish/modules/system/bx_image_magick.php": "9cd43c252ff10ad7bda54f56de2f5ffc"
+            }
+        },
+        "shop-vendor-mmlc": {
+            "hashes": []
+        }
+    }
+}
