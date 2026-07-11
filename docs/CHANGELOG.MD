@@ -18,10 +18,12 @@ Format orientiert sich an Keep a Changelog.
 - Login-Guard erweitert, sodass neben login.php auch der Reparaturpfad login_admin.php überwacht werden kann.
 - Fehlversuchs-Erkennung im Reparaturpfad von textbasierter Ausgabeprüfung auf explizites internes Flag umgestellt.
 - Beschreibung zu msec_admin_sessions in der Projektdokumentation präzisiert: Session-Schreiblogik via bx_security_session.php ist vorhanden; zusätzlicher Admin-Hook ist optional.
+- Frontend-Admin-Erkennung in Session-Tracking und Login-Guard auf DB-basierte Prüfung umgestellt (echter Accountstatus customers_status = 0 statt Session-Gruppenstatus).
 
 ### Fixed
 - Robustere Erfassung fehlgeschlagener Reparatur-Logins in Kombination aus login_admin.php und includes/login_admin.php.
 - Missverständliche Dokumentationsaussage zum Admin-Session-Tracking korrigiert.
+- Fehlklassifikation von Admin-Accounts bei gesetztem DEFAULT_CUSTOMERS_STATUS_ID_ADMIN auf abweichende Frontend-Kundengruppen behoben.
 
 ### Security
 - Bessere Stabilität unter paralleler Last durch Locking im Block-Entscheidungsfenster.

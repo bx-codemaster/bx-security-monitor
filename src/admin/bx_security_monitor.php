@@ -347,7 +347,7 @@ if(function_exists('msec_check_login_patch_status')) {
 } else {
     $patch_status = 'unknown';
 }
-var_dump($patch_status); // Debugging output to check the patch status
+
 require_once (DIR_WS_INCLUDES.'head.php');
 
 $messageStack->output();

@@ -35,6 +35,7 @@ Im aktuellen Modulstand 1.1.0 wurden gegenüber 1.0.0 insbesondere folgende tech
 - Optionales APCu-Rate-Limit für Requests ohne Score-Treffer
 - Erweiterte und gehärtete Erkennungslogik in mehreren Kategorien
 - Zusätzliche Einbindung und Erweiterung der Login-Guard-Überwachung
+- Korrektur der Frontend-Admin-Erkennung: nicht mehr über Session-Gruppenstatus, sondern über den echten Accountstatus aus der Kundentabelle (customers_status = 0)
 
 ## Architekturvergleich Alt zu Neu
 
@@ -139,6 +140,18 @@ Auswirkung:
 ### 3. Legacy-Kontext modified
 Das Modul arbeitet bewusst im Legacy-Stil von modified (xtc_db_query usw.), damit Integration und Kompatibilität erhalten bleiben.
 
+### 4. Admin-Erkennung im Frontend
+Ausgangslage:
+- Im Frontend kann ein Admin über DEFAULT_CUSTOMERS_STATUS_ID_ADMIN mit einer anderen Kundengruppe arbeiten.
+- Daher ist eine Admin-Erkennung über customers_status_id in der Session nicht verlässlich.
+
+Umsetzung:
+- Die Erkennung wurde auf DB-Basis umgestellt: maßgeblich ist der echte Accountstatus des eingeloggten Kundenkontos (customers_status = 0).
+- Diese Logik wurde im Session-Tracking und im Login-Guard umgesetzt.
+
+Auswirkung:
+- Die Security-Entscheidung für Admin-Erkennung ist jetzt unabhängig von Frontend-Testgruppen und DEFAULT_CUSTOMERS_STATUS_ID_ADMIN.
+
 ## Änderungsmatrix (kompakt)
 
 | Bereich | Ursprung 1.0.0 | Aktueller Stand src | Nutzen |
@@ -146,6 +159,7 @@ Das Modul arbeitet bewusst im Legacy-Stil von modified (xtc_db_query usw.), dami
 | Scanner-Engine | Basis-Scoring | ReDoS-Härtung, GET_LOCK, APCu-Rate-Limit | stabiler unter Last, weniger Race Conditions |
 | Cleanup | zufallsbasiert | intervallbasiert mit APCu-Fallback | planbareres Housekeeping |
 | Login-Guard | passiv | passiv plus erweiterte Pfadabdeckung | bessere Erfassung von Fehlversuchen |
+| Frontend-Admin-Erkennung | über Session-Status interpretierbar | über echten Accountstatus aus DB (customers_status = 0) | korrekt trotz DEFAULT_CUSTOMERS_STATUS_ID_ADMIN |
 | Admin-Session-Trust | vorhanden | vorhanden, aber primär über Shop-Hook | je nach Laufweg unterschiedliche Sichtbarkeit |
 | Admin-UI | vorhanden | weiter ausgebaut | bessere Bedienung und Auswertung |
 

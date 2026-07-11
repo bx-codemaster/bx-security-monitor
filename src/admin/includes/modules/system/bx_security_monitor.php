@@ -22,7 +22,7 @@
 
     public function __construct() {
       $this->code        = 'bx_security_monitor';
-      $this->version     = '1.1.0';
+      $this->version     = '1.2.0';
       $this->title       = MODULE_BX_SECURITY_MONITOR_STATUS_TITLE;
       $this->description = MODULE_BX_SECURITY_MONITOR_STATUS_DESC;
       $this->enabled     = ((defined('MODULE_BX_SECURITY_MONITOR_STATUS') && MODULE_BX_SECURITY_MONITOR_STATUS == 'True') ? true : false);

@@ -15,7 +15,7 @@
                 "/includes/data/login_admin.original.php": "b92d445ee7422aa37f267565644cb2e7",
                 "/includes/data/login_admin.patched.php": "06bb0ceb8c0943a56bc8892b83439524",
                 "/includes/extra/application_top/application_top_begin/bx_security_bootstrap.php": "19ac8d01b151c4430162acb73147b447",
-                "/includes/extra/application_top/application_top_end/bx_security_session.php": "03b0ec21ff0f04a792a42e250e848c8e",
+                "/includes/extra/application_top/application_top_end/bx_security_session.php": "24f8bdf3d8342eaa787031fdbfeab9b9",
                 "/includes/modules/bx_admin_login_guard.php": "fae3c03619f94c7011b6edeb5e0fe108",
                 "/includes/modules/bx_guard.php": "a15deb88213573004dc5c165aaa04514",
                 "/lang/english/extra/admin/bx_security_monitor.php": "1ddde154cb225db5d66433b2c25b2d42",
