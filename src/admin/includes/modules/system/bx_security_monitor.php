@@ -18,15 +18,14 @@
     public string $description;
     public bool $enabled;
     private bool $_check;
-	  public string $development_status; // '' = production ready, 'd' = in development, '' = Idee/Konzept
+	  public string $development_status; // 'p' = production ready, 'd' = in development, '' = Idee/Konzept
 
     public function __construct() {
       $this->code        = 'bx_security_monitor';
-      $this->version     = '1.2.0';
       $this->title       = MODULE_BX_SECURITY_MONITOR_STATUS_TITLE;
       $this->description = MODULE_BX_SECURITY_MONITOR_STATUS_DESC;
       $this->enabled     = ((defined('MODULE_BX_SECURITY_MONITOR_STATUS') && MODULE_BX_SECURITY_MONITOR_STATUS == 'True') ? true : false);
-      $this->development_status = 'd';
+      $this->development_status = 'p';
     }
 
     public function process($file): void {

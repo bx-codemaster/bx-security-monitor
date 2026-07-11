@@ -11,7 +11,7 @@
  * @author      bx-codemaster (benax)
  * @website     www.bx-coding.de
  * @license     GNU General Public License (GPL)
- * @since       2026-06-10
+ * @since       2026-07-10
  */
 
 define('BX_SECURITY_MONITOR_TITLE', 'BX Security Monitor - <span style="font-weight: normal;">Sicherheitsüberwachung</span>');

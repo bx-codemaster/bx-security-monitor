@@ -20,7 +20,7 @@ $description = '
 <details class="bxac-card">
 	<summary class="bxac-summary" style="list-style: none; display: inline-flex; align-items: center; gap: 8px; width: 100%;">
     <span class="bxac-arrow" style="font-size: 2rem;">▸</span>
-    <span class="bxac-title">' . xtc_image(DIR_WS_ICONS.'heading/bx_security_monitor.png', 'BX Security Monitor', '', '', 'style="max-height: 40px; vertical-align: middle; margin-right: 8px; cursor: pointer;"') . '<strong>BX Security Monitor</strong></span>
+    <span class="bxac-title">' . xtc_image(DIR_WS_ICONS.'heading/bx-security-monitor.png', 'BX Security Monitor', '', '', 'style="max-height: 40px; vertical-align: middle; margin-right: 8px; cursor: pointer;"') . '<strong>BX Security Monitor</strong></span>
   </summary>
   <div class="bxac-body">
     <h3 style="margin-top: 0;">Modul zur Sicherheitsüberwachung</h3>

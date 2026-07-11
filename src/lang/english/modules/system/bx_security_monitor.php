@@ -1,112 +1,67 @@
 <?php
 /**
- * English language file for the bx_image_magick system module.
- * \lang\english\modules\system\bx_image_magick.php
+ * English language file for the system module bx_security_monitor.
+ * /lang/english/modules/system/bx_security_monitor.php
  *
  * This file defines the English module texts for configuration,
  * installation instructions, and error messages in the modified admin area.
  *
- * @file        bx_image_magick.php
- * @package     bx-image-magick
+ * @file        bx_security_monitor.php
+ * @package     bx-security-monitor
  * @author      bx-codemaster (benax)
  * @website     www.bx-coding.de
  * @license     GNU General Public License (GPL)
- * @since       2026-06-10
+ * @since       2026-07-10
  */
-
-define('MODULE_BX_IMAGE_MAGICK_TITLE', 'BX Image Magick - <span style="font-weight: normal;">Image Editing with ImageMagick</span>');
+                    
+define('MODULE_BX_SECURITY_MONITOR_STATUS_TITLE', 'BX Security Monitor - <span style="font-weight: normal;">Security Monitoring</span>');
 
 $description = '
 <details class="bxac-card">
 	<summary class="bxac-summary" style="list-style: none; display: inline-flex; align-items: center; gap: 8px; width: 100%;">
     <span class="bxac-arrow" style="font-size: 2rem;">▸</span>
-    <span class="bxac-title">' . xtc_image(DIR_WS_ICONS.'heading/bx_image_magick.png', 'BX Image Magick', '', '', 'style="max-height: 40px; vertical-align: middle; margin-right: 8px; cursor: pointer;"') . '<strong>BX Image Magick</strong></span>
+    <span class="bxac-title">' . xtc_image(DIR_WS_ICONS.'heading/bx-security-monitor.png', 'BX Security Monitor', '', '', 'style="max-height: 40px; vertical-align: middle; margin-right: 8px; cursor: pointer;"') . '<strong>BX Security Monitor</strong></span>
   </summary>
   <div class="bxac-body">
-    <h3 style="margin-top: 0;">Module for Image Editing with ImageMagick</h3>
-    <p>Enables the creation and editing of images using the ImageMagick library, including ICC color profile support for CMYK and RGB conversions.</p>
-		<h4>ICC Color Profiles</h4>
-		<table class="admin_table">
-			<thead>
-				<tr>
-					<th style="vertical-align: top;">Profile</th>
-					<th style="vertical-align: top;">Age<br>(As of 06/2026)</th>
-					<th style="vertical-align: top;">Typical Purpose</th>
-					<th style="vertical-align: top;">Practical Impact</th>
-					<th style="vertical-align: top;">Recommended Use in Shop</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td style="vertical-align: top;">PSOcoated_v3.icc</td>
-					<td style="vertical-align: top;">ca. 10–11 years (Copyright 2015)</td>
-					<td style="vertical-align: top;">Modern CMYK source profile for coated offset printing</td>
-					<td style="vertical-align: top;">Generally provides a more neutral, contemporary CMYK interpretation than older FOGRA39 profiles</td>
-					<td style="vertical-align: top;"><strong>Default recommended</strong> for CMYK sources in current workflows</td>
-				</tr>
-				<tr>
-					<td style="vertical-align: top;">CoatedFOGRA39.icc</td>
-					<td style="vertical-align: top;">ca. 17–18 years (File 2008, Description ISO 12647-2:2004)</td>
-					<td style="vertical-align: top;">Older CMYK reference profile (Legacy/Fallback)</td>
-					<td style="vertical-align: top;">May appear slightly different in gray axis and saturation compared to v3; often still suitable for older workflows</td>
-					<td style="vertical-align: top;"><strong>Fallback</strong> for legacy print data or when v3 visibly differs</td>
-				</tr>
-				<tr>
-					<td style="vertical-align: top;">sRGB2014.icc</td>
-					<td style="vertical-align: top;">ca. 10–11 years (Copyright 2015)</td>
-					<td style="vertical-align: top;">RGB target profile for web/standard display</td>
-					<td style="vertical-align: top;">Solid, current sRGB output for browser and shop images</td>
-					<td style="vertical-align: top;"><strong>Default recommended</strong> as RGB target profile for the live shop</td>
-				</tr>
-				<tr>
-					<td style="vertical-align: top;">ColorMatchRGB.icc</td>
-					<td style="vertical-align: top;">very old (Copyright 2000, file 2008)</td>
-					<td style="vertical-align: top;">Older RGB profile (Fallback)</td>
-					<td style="vertical-align: top;">For web today mostly less ideal; can lead to different brightness/color effects</td>
-					<td style="vertical-align: top;"><strong>Not as Default</strong>; only as fallback for legacy assets</td>
-				</tr>
-			</tbody>
-		</table>
+    <h3 style="margin-top: 0;">Security Monitoring Module</h3>
+    <p>Monitors security-relevant events in the system and provides administration functions to protect against unauthorized access.</p>
 		<h5>Conclusion:</h5>
-		<p>The current default combination PSOcoated_v3 → sRGB2014 is sensible and modern.
-		The legacy profiles CoatedFOGRA39 and ColorMatchRGB are good fallback options, but not the first choice for new setups.
-		The most noticeable difference almost always occurs with the CMYK source profile; incorrect source profile quickly leads to color casts or dull colors.</p>
+		<p>The module offers comprehensive security monitoring and facilitates the administration of security-relevant events in the system.</p>
   </div>
 </details>';
 
-if((!defined('MODULE_BX_IMAGE_MAGICK_STATUS')) || (MODULE_BX_IMAGE_MAGICK_STATUS != 'True') && basename($_SERVER['PHP_SELF']) == 'module_export.php') {
-	$description .= '<p><a class="button btnbox but_red" style="text-align:center;" onclick="return confirmLink(\'Delete all files?\', \'\' ,this);" href="'.xtc_href_link(FILENAME_MODULE_EXPORT, 'set=system&module=bx_image_magick&action=custom').'">Delete all module files</a></p>';
+if((!defined('MODULE_BX_SECURITY_MONITOR_STATUS')) || (MODULE_BX_SECURITY_MONITOR_STATUS != 'True') && basename($_SERVER['PHP_SELF']) == 'module_export.php') {
+	$description .= '<p><a class="button btnbox but_red" style="text-align:center;" onclick="return confirmLink(\'Delete all files?\', \'\' ,this);" href="'.xtc_href_link(FILENAME_MODULE_EXPORT, 'set=system&module=bx_security_monitor&action=custom').'">Delete all module files</a></p>';
 }
 
-define('MODULE_BX_IMAGE_MAGICK_DESCRIPTION', $description);
+define('MODULE_BX_SECURITY_MONITOR_STATUS_DESC', $description);
 
-define('MODULE_BX_IMAGE_MAGICK_STATUS_TITLE', 'Status');
-define('MODULE_BX_IMAGE_MAGICK_STATUS_DESC', 'Enable module?');
+define('MODULE_BX_SECURITY_SCANNER_STATUS_TITLE', 'Scanner Detection');
+define('MODULE_BX_SECURITY_SCANNER_STATUS_DESC', 'Enable scanner detection?');
 
-define('MODULE_BX_IMAGE_MAGICK_AUTO_CREATE_ON_CONSTRUCT_TITLE', 'Automatically create images on construction');
-define('MODULE_BX_IMAGE_MAGICK_AUTO_CREATE_ON_CONSTRUCT_DESC', 'Should the image be automatically created when the class is instantiated and the source and target files are valid? This setting can impact performance if many instances of the class are created, as image processing will be performed each time. It is recommended to enable this option only if you are sure that the images are needed immediately upon construction and the number of instances is manageable.');
+define('MODULE_BX_SECURITY_MONITOR_CONFIG_GROUP_ID_TITLE', 'Internal Configuration Group ID');
+define('MODULE_BX_SECURITY_MONITOR_CONFIG_GROUP_ID_DESC', 'Internal technical value for the module\'s configuration group. Cannot be changed manually.');
 
-define('IMAGEMANIPULATOR_ICC_PROFILE_CMYK_TITLE', 'ICC Profile CMYK (Filename)');
-define('IMAGEMANIPULATOR_ICC_PROFILE_CMYK_DESC', 'Filename of the CMYK source profile in the directory admin/includes/classes/ICC/. Example: PSOcoated_v3.icc');
-define('IMAGEMANIPULATOR_ICC_PROFILE_RGB_TITLE', 'ICC Profile RGB (Filename)');
-define('IMAGEMANIPULATOR_ICC_PROFILE_RGB_DESC', 'Filename of the RGB target profile in the directory admin/includes/classes/ICC/. Example: sRGB2014.icc');
+define('MODULE_BX_SECURITY_BLOCK_THRESHOLD_TITLE', 'Blocking Threshold');
+define('MODULE_BX_SECURITY_BLOCK_THRESHOLD_DESC', 'Score for automatic blocking');
 
-define('MODULE_BX_IMAGE_MAGICK_CONFIG_GROUP_ID_TITLE', 'Internal configuration group ID');
-define('MODULE_BX_IMAGE_MAGICK_CONFIG_GROUP_ID_DESC', 'Internal technical value for the module configuration group. Do not change manually.');
+define('MODULE_BX_SECURITY_SCORE_WINDOW_MINUTES_TITLE', 'Evaluation Period');
+define('MODULE_BX_SECURITY_SCORE_WINDOW_MINUTES_DESC', 'Period for accumulated points');
+define('MODULE_BX_SECURITY_BLOCK_HOURS_TITLE', 'Automatic Blocking Duration');
+define('MODULE_BX_SECURITY_BLOCK_HOURS_DESC', 'Blocking duration in hours');
+define('MODULE_BX_SECURITY_EVENT_RETENTION_DAYS_TITLE', 'Event Retention');
+define('MODULE_BX_SECURITY_EVENT_RETENTION_DAYS_DESC', 'Retention period in days');
+define('MODULE_BX_SECURITY_ADMIN_LOGIN_STATUS_TITLE', 'Admin Login Guard Active');
+define('MODULE_BX_SECURITY_ADMIN_LOGIN_STATUS_DESC', 'Logs and throttles series of failed attempts');
+define('MODULE_BX_SECURITY_ADMIN_LOGIN_MAX_ATTEMPTS_TITLE', 'Admin Login Failed Attempts');
+define('MODULE_BX_SECURITY_ADMIN_LOGIN_MAX_ATTEMPTS_DESC', 'Failed attempts until IP block');
+define('MODULE_BX_SECURITY_ADMIN_LOGIN_WINDOW_MINUTES_TITLE', 'Admin Login Evaluation Period');
+define('MODULE_BX_SECURITY_ADMIN_LOGIN_WINDOW_MINUTES_DESC', 'Evaluation period in minutes');
+define('MODULE_BX_SECURITY_ADMIN_LOGIN_BLOCK_MINUTES_TITLE', 'Admin Login Blocking Duration');
+define('MODULE_BX_SECURITY_ADMIN_LOGIN_BLOCK_MINUTES_DESC', 'IP blocking duration in minutes');
+define('MODULE_BX_SECURITY_MANUAL_RULES_CACHE_TITLE', 'Manual Rules Cache');
+define('MODULE_BX_SECURITY_MANUAL_RULES_CACHE_DESC', 'Automatically generated cache of manual rules');
 
-define('PRODUCT_IMAGE_INFO_TRANSFORM_TITLE', 'Transform string for info images');
-define('PRODUCT_IMAGE_INFO_TRANSFORM_DESC', 'Effect order for info images, e.g. round_edges(4),drop_shadow(3).');
-define('PRODUCT_IMAGE_MIDI_TRANSFORM_TITLE', 'Transform string for midi images');
-define('PRODUCT_IMAGE_MIDI_TRANSFORM_DESC', 'Effect order for midi images, e.g. round_edges(4),drop_shadow(3).');
-define('PRODUCT_IMAGE_MINI_TRANSFORM_TITLE', 'Transform string for mini images');
-define('PRODUCT_IMAGE_MINI_TRANSFORM_DESC', 'Effect order for mini images, e.g. round_edges(4),drop_shadow(3).');
-define('PRODUCT_IMAGE_POPUP_TRANSFORM_TITLE', 'Transform string for popup images');
-define('PRODUCT_IMAGE_POPUP_TRANSFORM_DESC', 'Effect order for popup images, e.g. round_edges(4),drop_shadow(3).');
-define('PRODUCT_IMAGE_THUMBNAIL_TRANSFORM_TITLE', 'Transform string for thumbnail images');
-define('PRODUCT_IMAGE_THUMBNAIL_TRANSFORM_DESC', 'Effect order for thumbnail images, e.g. round_edges(4),drop_shadow(3).');
-
-define('MODULE_BX_IMAGE_MAGICK_IMAGICK_ERROR', 'ERROR! Module <strong>' . constant('MODULE_BX_IMAGE_MAGICK_TITLE') . '</strong> cannot be installed because the Imagick library is missing!');
-
-define('MODULE_BX_IMAGE_MAGICK_TEXT_COULD_NOT_BE_DELETED', 'ERROR! Module <strong>' . constant('MODULE_BX_IMAGE_MAGICK_TITLE') . '</strong> could not be deleted.');
-define('MODULE_BX_IMAGE_MAGICK_TEXT_SUCCESSFULLY_REMOVED', 'SUCCESS! Module <strong>' . constant('MODULE_BX_IMAGE_MAGICK_TITLE') . '</strong> was successfully removed.');
-define('MODULE_BX_IMAGE_MAGICK_TEXT_REMOVAL_INCOMPLETE', 'ERROR! Module <strong>' . constant('MODULE_BX_IMAGE_MAGICK_TITLE') . '</strong> could not be completely removed.');
+define('MODULE_BX_SECURITY_MONITOR_TEXT_COULD_NOT_BE_DELETED', 'ERROR! Module <strong>' . constant('MODULE_BX_SECURITY_MONITOR_STATUS_TITLE') . '</strong> could not be deleted.');
+define('MODULE_BX_SECURITY_MONITOR_TEXT_SUCCESSFULLY_REMOVED', 'Success! Module <strong>' . constant('MODULE_BX_SECURITY_MONITOR_STATUS_TITLE') . '</strong> was successfully removed.');
+define('MODULE_BX_SECURITY_MONITOR_TEXT_REMOVAL_INCOMPLETE', 'ERROR! Module <strong>' . constant('MODULE_BX_SECURITY_MONITOR_STATUS_TITLE') . '</strong> could not be completely removed.');
