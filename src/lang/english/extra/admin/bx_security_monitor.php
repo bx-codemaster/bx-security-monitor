@@ -145,3 +145,10 @@ define('BX_SECURITY_MONITOR_TH_USER_AGENT', 'User-Agent');
 define('BX_SECURITY_MONITOR_NO_EVENTS_YET', 'No events yet.');
 define('BX_SECURITY_MONITOR_YES', 'Yes');
 define('BX_SECURITY_MONITOR_NO', 'No');
+
+define('BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_PATCH_MISMATCH', 'The core patch for <code>login_admin.php</code> has been modified externally (e.g. by a shop update). The enhanced login monitoring may no longer be active. Please check the patch status.');
+define('BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_TARGET_MISSING', 'The file <code>login_admin.php</code> is missing. The admin area may be affected!');
+define('BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_META_MISSING', 'Backup metadata for <code>login_admin.php</code> is missing. The patch status cannot be determined.');
+define('BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_META_INVALID', 'Backup metadata for <code>login_admin.php</code> is corrupted. The patch status cannot be determined.');
+define('BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_NOT_INSTALLED', 'The patch <code>login_admin.php</code> is not installed.');
+define('BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_OK', 'The patch status of <code>login_admin.php</code> is OK.');

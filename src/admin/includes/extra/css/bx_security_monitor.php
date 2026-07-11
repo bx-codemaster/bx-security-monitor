@@ -49,6 +49,12 @@
     scroll-margin-top: 88px;
   }
 
+  .warning_message,
+  .success_message {
+    border-radius: 4px;
+    margin-right: 5px;
+  }
+
   .msec-box {
       background:#fff;
       border:1px solid #ddd;
