@@ -26,7 +26,7 @@
       $this->title       = MODULE_BX_SECURITY_MONITOR_STATUS_TITLE;
       $this->description = MODULE_BX_SECURITY_MONITOR_STATUS_DESC;
       $this->enabled     = ((defined('MODULE_BX_SECURITY_MONITOR_STATUS') && MODULE_BX_SECURITY_MONITOR_STATUS == 'True') ? true : false);
-      $this->development_status = '';
+      $this->development_status = 'd';
     }
 
     public function process($file): void {
@@ -47,6 +47,8 @@
     }
 
     public function install(): void {
+      global $messageStack;
+      
       xtc_db_query("ALTER TABLE " . TABLE_ADMIN_ACCESS . " ADD bx_security_monitor INTEGER(1)");
       xtc_db_query("UPDATE ".TABLE_ADMIN_ACCESS." SET bx_security_monitor = 1");
 
@@ -325,9 +327,12 @@
           KEY is_enabled (is_enabled)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
+      $patch_ok = $this->bx_patch_login_admin();
+
     }
 
     public function remove(): void {
+      global $messageStack;
       xtc_db_query("DELETE FROM " . TABLE_CONFIGURATION . " WHERE configuration_key IN ('" . implode("', '", $this->keys()) . "')");
       xtc_db_query("DELETE FROM " . TABLE_CONFIGURATION . " WHERE configuration_key IN ('" . implode("', '", $this->keys2()) . "')");
       xtc_db_query("DELETE FROM " . TABLE_CONFIGURATION_GROUP . " WHERE configuration_group_title = 'BX Security Monitor'");
@@ -339,6 +344,8 @@
       xtc_db_query("DROP TABLE IF EXISTS `msec_manual_rules`");
 
       xtc_db_query("ALTER TABLE " . TABLE_ADMIN_ACCESS . " DROP COLUMN bx_security_monitor");
+
+      $unpatch_ok = $this->bx_unpatch_login_admin();
     }
 
     public function keys(): array {
@@ -369,7 +376,7 @@
         
       // Dateien definieren
       $dirs_and_files   = array();
-
+      
       $dirs_and_files[] = DIR_FS_ADMIN . 'bx_security_monitor.php';
       $dirs_and_files[] = DIR_FS_ADMIN . 'images/icons/heading/bx-security-monitor.png';
       $dirs_and_files[] = DIR_FS_ADMIN . 'includes/extra/css/bx_security_monitor.php';
@@ -377,8 +384,10 @@
       $dirs_and_files[] = DIR_FS_ADMIN . 'includes/extra/functions/bx_security_monitor.php';
       $dirs_and_files[] = DIR_FS_ADMIN . 'includes/extra/javascript/bx_security_monitor.php';
       $dirs_and_files[] = DIR_FS_ADMIN . 'includes/extra/menu/bx_security_monitor.php';
-      
+      $dirs_and_files[] = DIR_FS_CATALOG . 'includes/data/login_admin.original.php';
+      $dirs_and_files[] = DIR_FS_CATALOG . 'includes/data/login_admin.patched.php';      
       $dirs_and_files[] = DIR_FS_CATALOG . 'includes/extra/application_top/application_top_begin/bx_security_bootstrap.php';
+      $dirs_and_files[] = DIR_FS_CATALOG . 'includes/extra/application_top/application_top_end/bx_security_session.php';
       $dirs_and_files[] = DIR_FS_CATALOG . 'includes/modules/bx_admin_login_guard.php';
       $dirs_and_files[] = DIR_FS_CATALOG . 'includes/modules/bx_guard.php';
       $dirs_and_files[] = DIR_FS_CATALOG . 'lang/english/extra/admin/bx_security_monitor.php';
@@ -468,4 +477,136 @@
 
       return rmdir($realPath);
     }
+
+    private function bx_patch_login_admin(): bool {
+      global $messageStack;
+
+      $target       = DIR_FS_CATALOG . 'login_admin.php';
+      $backup       = DIR_FS_CATALOG . 'login_admin.php.bx-backup';
+      $original_ref = DIR_FS_CATALOG . 'includes/data/login_admin.original.php';
+      $patched_src  = DIR_FS_CATALOG . 'includes/data/login_admin.patched.php';
+
+      // Bereits installiert? -> kein Fehler, Ziel-Zustand ist erreicht
+      if (file_exists($backup)) {
+        $messageStack->add_session('Core-Patch für login_admin.php ist bereits installiert.', 'info');
+        return true;
+      }
+
+      // Referenzdateien vorhanden?
+      if (!file_exists($original_ref) || !file_exists($patched_src)) {
+        $messageStack->add_session('Referenzdateien für den Login-Patch fehlen im Modulverzeichnis.', 'error');
+        return false;
+      }
+
+      // Rechte prüfen
+      if (!is_writable($target) || !is_writable(dirname($target))) {
+        $messageStack->add_session('Keine Schreibrechte auf ' . $target, 'error');
+        return false;
+      }
+
+      // Ist die aktuelle Datei noch die erwartete Original-Version?
+      // Falls nicht: Core wurde zwischenzeitlich aktualisiert -> abbrechen statt blind patchen.
+      if (hash_file('sha256', $target) !== hash_file('sha256', $original_ref)) {
+        $messageStack->add_session(
+          'login_admin.php weicht von der erwarteten Original-Version ab. ' .
+          'Vermutlich wurde der Shop-Core zwischenzeitlich aktualisiert. ' .
+          'Bitte den Patch manuell prüfen und ggf. anpassen, bevor du installierst.',
+          'error'
+        );
+        return false;
+      }
+
+      // Backup erstellen
+      if (!copy($target, $backup)) {
+        $messageStack->add_session('Backup von login_admin.php konnte nicht erstellt werden.', 'error');
+        return false;
+      }
+
+      // Backup verifizieren
+      if (hash_file('sha256', $backup) !== hash_file('sha256', $original_ref)) {
+        @unlink($backup);
+        $messageStack->add_session('Backup-Verifikation fehlgeschlagen. Installation des Patches abgebrochen.', 'error');
+        return false;
+      }
+
+      // Metadaten sichern (u.a. für spätere Update-Erkennung im Admin-Panel)
+      $meta_written = file_put_contents($backup . '.meta', json_encode([
+          'original_hash'  => hash_file('sha256', $original_ref),
+          'patched_hash'   => hash_file('sha256', $patched_src),
+          'installed_at'   => date('c'),
+          'module_version' => defined('MEINMODUL_VERSION') ? MEINMODUL_VERSION : null,
+      ], JSON_PRETTY_PRINT));
+
+      if ($meta_written === false) {
+        // Backup zurückrollen, damit kein halb-installierter Zustand zurückbleibt
+        @unlink($backup);
+        $messageStack->add_session('Metadaten für den Login-Patch konnten nicht geschrieben werden.', 'error');
+        return false;
+      }
+
+      // Atomar einspielen: erst als .tmp kopieren, dann umbenennen
+      $tmp = $target . '.tmp';
+
+      if (!copy($patched_src, $tmp)) {
+        @unlink($backup);
+        @unlink($backup . '.meta');
+        $messageStack->add_session('Patched-Datei konnte nicht vorbereitet werden.', 'error');
+        return false;
+      }
+
+      if (!rename($tmp, $target)) {
+        @unlink($tmp);
+        @unlink($backup);
+        @unlink($backup . '.meta');
+        $messageStack->add_session('Patch konnte nicht aktiviert werden.', 'error');
+        return false;
+      }
+
+      $messageStack->add_session('Core-Patch für login_admin.php wurde erfolgreich installiert.', 'success');
+      return true;
+    }
+
+    private function bx_unpatch_login_admin(): bool {
+      global $messageStack;
+
+      $target      = DIR_FS_CATALOG . 'login_admin.php';
+      $backup      = DIR_FS_CATALOG . 'login_admin.php.bx-backup';
+      $patched_src = DIR_FS_CATALOG . 'includes/data/login_admin.patched.php';
+
+      if (!file_exists($backup)) {
+        // Kein Backup vorhanden -> war nie gepatcht (oder schon zurückgesetzt) -> kein Fehler
+        $messageStack->add_session('Kein aktiver Core-Patch für login_admin.php gefunden.', 'info');
+        return true;
+      }
+
+      if (!file_exists($patched_src)) {
+        // Ohne Referenz kann nicht sicher geprüft werden, ob die aktuelle Datei
+        // wirklich unsere gepatchte Version ist -> lieber nichts anfassen
+        $messageStack->add_session(
+          'Referenzdatei für den Login-Patch fehlt. Automatisches Wiederherstellen abgebrochen. ' .
+          'Backup liegt weiterhin unter: ' . $backup, 'error'
+        );
+        return false;
+      }
+
+      // Ist die aktuelle Datei noch GENAU unsere gepatchte Version?
+      if (hash_file('sha256', $target) !== hash_file('sha256', $patched_src)) {
+        $messageStack->add_session(
+          'login_admin.php wurde seit der Installation verändert. ' .
+          'Automatisches Wiederherstellen wurde abgebrochen, um Datenverlust zu vermeiden. ' .
+          'Dein Original-Backup liegt unverändert unter: ' . $backup, 'error'
+        );
+        return false;
+      }
+
+      if (!rename($backup, $target)) {
+        $messageStack->add_session('Original von login_admin.php konnte nicht wiederhergestellt werden.', 'error');
+        return false;
+      }
+
+      @unlink($backup . '.meta');
+      $messageStack->add_session('Core-Patch für login_admin.php wurde erfolgreich zurückgesetzt.', 'success');
+      return true;
+    }
+
   }

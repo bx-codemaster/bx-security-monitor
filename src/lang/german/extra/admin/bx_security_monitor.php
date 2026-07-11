@@ -145,3 +145,10 @@ define('BX_SECURITY_MONITOR_TH_USER_AGENT', 'User-Agent');
 define('BX_SECURITY_MONITOR_NO_EVENTS_YET', 'Noch keine Ereignisse.');
 define('BX_SECURITY_MONITOR_YES', 'ja');
 define('BX_SECURITY_MONITOR_NO', 'nein');
+
+define('BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_PATCH_MISMATCH', 'Der Core-Patch für <code>login_admin.php</code> wurde extern verändert (z.&nbsp;B. durch ein Shop-Update). Die erweiterte Login-Überwachung ist möglicherweise nicht mehr aktiv. Bitte Patch-Status prüfen.');
+define('BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_TARGET_MISSING', 'Die Datei <code>login_admin.php</code> wurde nicht gefunden. Der Adminbereich könnte beeinträchtigt sein!');
+define('BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_META_MISSING', 'Backup-Metadaten für <code>login_admin.php</code> fehlen. Der Patch-Status kann nicht eindeutig geprüft werden.');
+define('BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_META_INVALID', 'Backup-Metadaten für <code>login_admin.php</code> sind beschädigt. Der Patch-Status kann nicht eindeutig geprüft werden.');
+define('BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_NOT_INSTALLED', 'Der Patch <code>login_admin.php</code> ist nicht installiert.');
+define('BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_OK', 'Der Patch-Status von <code>login_admin.php</code> ist ok.');

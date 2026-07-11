@@ -166,7 +166,7 @@ if (!function_exists('msec_register_failed_admin_login')) {
                 header('HTTP/1.1 403 Forbidden');
                 header('Content-Type: text/plain; charset=utf-8');
             }
-            echo "Zu viele fehlgeschlagene Anmeldeversuche. Bitte spaeter erneut versuchen.";
+            echo "Zu viele fehlgeschlagene Anmeldeversuche. Bitte später erneut versuchen.";
             return;
         }
 
@@ -186,6 +186,18 @@ if (!function_exists('msec_register_failed_admin_login')) {
 
 if (!function_exists('msec_admin_login_shutdown')) {
     function msec_admin_login_shutdown(): void {
+        $script = isset($_SERVER['SCRIPT_NAME']) ? strtolower(basename($_SERVER['SCRIPT_NAME'])) : '';
+
+        // login_admin.php setzt keine Shop-Session für erfolgreiche Reparatur-Logins.
+        // Der Aufrufer markiert in diesem Fall explizit fehlgeschlagene Versuche.
+        if ($script === 'login_admin.php') {
+            $failed = !empty($GLOBALS['msec_login_admin_failed']);
+            if ($failed) {
+                msec_register_failed_admin_login();
+            }
+            return;
+        }
+
         $is_admin = (
             isset($_SESSION['customer_id'])
             && isset($_SESSION['customers_status']['customers_status_id'])
@@ -200,11 +212,19 @@ if (!function_exists('msec_admin_login_shutdown')) {
 
 $script = isset($_SERVER['SCRIPT_NAME']) ? strtolower(basename($_SERVER['SCRIPT_NAME'])) : '';
 $is_admin_login_post = (
-    $script === 'login.php'
-    && isset($_SERVER['REQUEST_METHOD'])
-    && strtoupper((string)$_SERVER['REQUEST_METHOD']) === 'POST'
-    && isset($_POST['login'])
-    && (string)$_POST['login'] === 'admin'
+    (
+        $script === 'login.php'
+        && isset($_SERVER['REQUEST_METHOD'])
+        && strtoupper((string)$_SERVER['REQUEST_METHOD']) === 'POST'
+        && isset($_POST['login'])
+        && (string)$_POST['login'] === 'admin'
+    )
+    || (
+        $script === 'login_admin.php'
+        && isset($_SERVER['REQUEST_METHOD'])
+        && strtoupper((string)$_SERVER['REQUEST_METHOD']) === 'POST'
+        && (isset($_POST['repair']) || isset($_POST['show_error']))
+    )
 );
 
 if ($is_admin_login_post) {

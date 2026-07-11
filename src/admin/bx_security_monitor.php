@@ -341,6 +341,13 @@ switch($action) {
         break;
 }
 
+// Check if the login_admin.php patch is applied
+if(function_exists('msec_check_login_patch_status')) {
+    $patch_status = msec_check_login_patch_status();
+} else {
+    $patch_status = 'unknown';
+}
+var_dump($patch_status); // Debugging output to check the patch status
 require_once (DIR_WS_INCLUDES.'head.php');
 
 $messageStack->output();
@@ -366,6 +373,30 @@ $messageStack->output();
     <td class="boxCenter">
       <div class="pageHeadingImage" style="width: 42px;">
         <?php echo xtc_image(DIR_WS_ICONS.'heading/bx-security-monitor.png', BX_SECURITY_MONITOR_TITLE_TAG, '', '', 'style="height: 40px;"'); ?>
+      </div>
+      <div class="pageHeading flt-r">
+        <?php
+        switch ($patch_status) {
+        case 'mismatch':
+            echo '<div class="warning_message">⚠️ '.BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_PATCH_MISMATCH.'</div>';
+            break;
+        case 'target_missing':
+            echo '<div class="warning_message">⚠️ '.BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_TARGET_MISSING.'</div>';
+            break;
+        case 'meta_missing':
+            echo '<div class="warning_message">⚠️ '.BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_META_MISSING.'</div>';
+            break;
+        case 'meta_invalid':
+            echo '<div class="warning_message">⚠️ '.BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_META_INVALID.'</div>';
+            break;
+        case 'not_installed':
+            echo '<div class="success_message">✅ '.BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_NOT_INSTALLED.'</div>';
+            break;
+        case 'ok':
+            echo '<div class="success_message">✅ '.BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_OK.'</div>';
+            break;
+        }
+        ?>
       </div>
       <div class="pageHeading flt-l">
         <?php echo BX_SECURITY_MONITOR_TITLE; ?>
@@ -400,7 +431,7 @@ $messageStack->output();
               </div>
 
               <div class="msec-grid">
-                  <div class="msec-box">
+                  <div class="msec-box main">
                       <div class="msec-box-title pastel-apricot"><?php echo BX_SECURITY_MONITOR_UNUSUAL_ACTIVITY; ?></div>
                       <div class="msec-box-body">
                       <?php if(count($alerts)<1){ ?><div class="msec-info" style="margin:0"><?php echo BX_SECURITY_MONITOR_NO_UNUSUAL_ACTIVITY; ?></div><?php } ?>
@@ -414,7 +445,7 @@ $messageStack->output();
                       <?php } ?>
                       </div>
                   </div>
-                  <div class="msec-box">
+                  <div class="msec-box main">
                       <div class="msec-box-title pastel-mint"><?php echo BX_SECURITY_MONITOR_DETECTED_ATTACK_TYPES_24_HOURS; ?></div>
                       <div class="msec-box-body">
                           <?php if(count($categories)<1){echo BX_SECURITY_MONITOR_NO_EVENTS; } ?>
@@ -433,7 +464,7 @@ $messageStack->output();
                   </div>
               </div>
 
-              <div class="msec-box">
+              <div class="msec-box main">
                 <div class="msec-box-title pastel-sky">
                     <?php echo BX_SECURITY_MONITOR_ACTIVITY_OVERVIEW_24_HOURS; ?>
                 </div>
@@ -461,7 +492,7 @@ $messageStack->output();
               </div>
 
               <div class="msec-grid">
-                  <div class="msec-box">
+                  <div class="msec-box main">
                       <div class="msec-box-title pastel-lavender"><?php echo BX_SECURITY_MONITOR_TOP_ATTACKING_IPS_24_HOURS; ?></div>
                       <div class="msec-box-body">
                           <table class="msec-table">
@@ -494,7 +525,7 @@ $messageStack->output();
                           </table>
                       </div>
                   </div>
-                  <div class="msec-box">
+                  <div class="msec-box main">
                       <div class="msec-box-title pastel-rose"><?php echo BX_SECURITY_MONITOR_MOST_ATTACKED_PATHS_24_HOURS; ?></div>
                       <div class="msec-box-body">
                           <table class="msec-table">
@@ -527,7 +558,7 @@ $messageStack->output();
                   </div>
               </div>
 
-              <div class="msec-box">
+              <div class="msec-box main">
                   <div class="msec-box-title pastel-lemon"><?php echo BX_SECURITY_MONITOR_LAST_CRITICAL_OR_BLOCKED_EVENTS; ?></div>
                   <div class="msec-box-body">
                       <table class="msec-table">
@@ -565,7 +596,7 @@ $messageStack->output();
                   </div>
               </div>
 
-              <div class="msec-box">
+              <div class="msec-box main">
                   <div class="msec-box-title pastel-apricot scroll-target" id="bx_settings"><?php echo BX_SECURITY_MONITOR_SETTINGS; ?></div>
                   <div class="msec-box-body">
                     <?php
@@ -624,7 +655,7 @@ $messageStack->output();
                   </div>
               </div>
 
-                            <div class="msec-box">
+                            <div class="msec-box main">
                                 <div class="msec-box-title pastel-mint scroll-target" id="bx_manual_rules"><?php echo BX_SECURITY_MONITOR_MANUAL_RULES; ?></div>
                 <div class="msec-box-body">
                     <div class="msec-warning">
@@ -712,7 +743,7 @@ $messageStack->output();
                 </div>
               </div>
 
-              <div class="msec-box">
+              <div class="msec-box main">
                   <div class="msec-box-title pastel-sky scroll-target" id="bx_auto_blocks"><?php echo BX_SECURITY_MONITOR_ACTIVE_AUTO_BLOCKS; ?></div>
                   <div class="msec-box-body">
                       <div class="msec-actions" style="justify-content:flex-end">
@@ -777,7 +808,7 @@ $messageStack->output();
               </div>
 
               <div class="msec-grid">
-                  <div class="msec-box">
+                  <div class="msec-box main">
                       <div class="msec-box-title pastel-lavender scroll-target" id="bx_permanent_whitelist"><?php echo BX_SECURITY_MONITOR_PERMANENT_WHITELIST; ?></div>
                       <div class="msec-box-body">
                         <?php
@@ -843,7 +874,7 @@ $messageStack->output();
                       </div>
                   </div>
 
-                  <div class="msec-box">
+                  <div class="msec-box main">
                       <div class="msec-box-title pastel-rose"><?php echo BX_SECURITY_MONITOR_TEMP_ADMIN_APPROVALS; ?></div>
                       <div class="msec-box-body">
                           <div class="msec-info"><?php echo BX_SECURITY_MONITOR_TEMP_ADMIN_APPROVALS_INFO; ?></div>
@@ -876,7 +907,7 @@ $messageStack->output();
                   </div>
               </div>
 
-              <div class="msec-box">
+              <div class="msec-box main">
                   <div class="msec-box-title pastel-lemon scroll-target" id="bx_events"><?php echo BX_SECURITY_MONITOR_LATEST_SECURITY_EVENTS; ?></div>
                   <div class="msec-box-body">
                       <div class="msec-actions" style="justify-content:flex-end">

@@ -78,3 +78,38 @@ function msec_admin_rebuild_rule_cache() {
     $cache = base64_encode(json_encode($rules, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
     xtc_db_query("UPDATE " . TABLE_CONFIGURATION . " SET configuration_value = '" . xtc_db_prepare_input($cache) . "', last_modified = NOW() WHERE configuration_key = 'MODULE_BX_SECURITY_MANUAL_RULES_CACHE'");
 }
+
+
+function msec_check_login_patch_status(): string {
+  $target    = DIR_FS_CATALOG . 'login_admin.php';
+  $backup    = DIR_FS_CATALOG . 'login_admin.php.bx-backup';
+  $meta_file = $backup . '.meta';
+
+  // Kein Backup -> Patch wurde nie installiert (oder sauber zurückgesetzt)
+  if (!file_exists($backup)) {
+    return 'not_installed';
+  }
+
+  if (!file_exists($meta_file)) {
+    // Backup existiert, aber Meta fehlt -> unklarer Zustand, sollte eigentlich nie passieren
+    return 'meta_missing';
+  }
+
+  $meta = json_decode(file_get_contents($meta_file), true);
+  if (!is_array($meta) || empty($meta['patched_hash'])) {
+    return 'meta_invalid';
+  }
+
+  if (!file_exists($target)) {
+    // login_admin.php fehlt komplett - kritisch!
+    return 'target_missing';
+  }
+
+  $current_hash = hash_file('sha256', $target);
+
+  if ($current_hash === $meta['patched_hash']) {
+    return 'ok';
+  }
+
+  return 'mismatch'; // Core-Update oder Fremdänderung hat den Patch überschrieben
+}
