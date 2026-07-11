@@ -2,7 +2,7 @@
 /* -------------------------------------------------------------------------
    Security Monitor for modified eCommerce
    Datei: /includes/modules/bx_guard.php
-   Version: 1.1.0
+   Version: 1.2.7
 
    Unabhängiges Community-Modul. Keine offizielle modified-Erweiterung.
    Lizenz: GPL-2.0-or-later
@@ -18,7 +18,7 @@
      die kein Score-Pattern treffen (z. B. Login-Bruteforce auf legitimen Pfaden)
 ---------------------------------------------------------------------------*/
 
-if (!function_exists('xtc_db_query') || !function_exists('xtc_db_prepare_input')) {
+if (!function_exists('xtc_db_query') || !function_exists('xtc_db_input')) {
     return;
 }
 
@@ -83,7 +83,7 @@ if (!function_exists('msec_is_trusted_ip')) {
            FROM msec_whitelist 
           WHERE ip_address = '" . xtc_db_input($ip) . "' LIMIT 1)
           UNION ALL 
-           (SELECT 1 AS trusted FROM msec_admin_sessions WHERE ip_address = '" . xtc_db_prepare_input($ip) . "' AND expires_at > NOW() LIMIT 1) LIMIT 1 ");
+           (SELECT 1 AS trusted FROM msec_admin_sessions WHERE ip_address = '" . xtc_db_input($ip) . "' AND expires_at > NOW() LIMIT 1) LIMIT 1 ");
         return xtc_db_num_rows($query) > 0;
     }
 }
@@ -243,7 +243,13 @@ if (!function_exists('msec_score_request')) {
             /* Kein pauschaler /pub/-Block: modified besitzt selbst einen pub-Ordner. */
             array('/pub/linux/', 25, 'Fremder Linux-Mirrorpfad', 'FTP-/Mirror-Scanner'),
             array('/pub/misc/', 25, 'Fremder Mirrorpfad', 'FTP-/Mirror-Scanner'),
-            array('/pub/gnu2/', 25, 'Fremder GNU-Mirrorpfad', 'FTP-/Mirror-Scanner')
+            array('/pub/gnu2/', 25, 'Fremder GNU-Mirrorpfad', 'FTP-/Mirror-Scanner'),
+
+            array('/.ftpconfig', 25, 'FTP-Konfigurationsdatei', 'FTP-/Mirror-Scanner'),
+            array('ws_ftp.ini', 25, 'WS_FTP-Konfiguration', 'FTP-/Mirror-Scanner'),
+            array('/.netrc', 25, 'Netrc-Zugangsdaten', 'FTP-/Mirror-Scanner'),
+            array('sitemanager.xml', 25, 'FileZilla-Sitemanager', 'FTP-/Mirror-Scanner'),
+            array('/ftp-sync.json', 20, 'FTP-Sync-Konfiguration', 'FTP-/Mirror-Scanner'),
         );
 
         foreach ($path_patterns as $item) {
@@ -256,7 +262,18 @@ if (!function_exists('msec_score_request')) {
         $malware_names = array(
             'shell.php', 'cmd.php', 'wso.php', 'c99.php', 'r57.php', 'b374k.php',
             'mini.php', 'uploader.php', 'filemanager.php', 'chosen.php', 'alfa.php',
-            'inputs.php', 'class.api.php', 'priv8.php', 'sym.php'
+            'inputs.php', 'class.api.php', 'priv8.php', 'sym.php',
+    
+            // NEU: Moderne Webshells & Hacking-Tools
+            'p0wny.php', 'powny.php', 'leaf.php', 'cyberking.php', 'godzilla.php', 
+            'anubis.php', 'behinder.php', 'vuln.php', 'exfil.php', 'tunnel.php',
+            
+            // NEU: Getarnte Schadsoftware (Häufige Scanner-Ziele)
+            'wp-checks.php', 'db-session.php', 'db-status.php', 'test-env.php', 
+            'vulc.php', 'lock.php', 'adm.php', 'system-config.php',
+            
+            // NEU: Krypto-Miner Steuerdateies / Reste
+            'xmrig', 'minerd', 'cpuminer', 'miner.php', 'pool.php'
         );
 
         foreach ($malware_names as $name) {
@@ -406,12 +423,12 @@ if ($ip === '') {
     return;
 }
 
-if (msec_active_block($ip)) {
-    msec_block_response();
-}
-
 if (msec_is_trusted_ip($ip)) {
     return;
+}
+
+if (msec_active_block($ip)) {
+    msec_block_response();
 }
 
 /*
@@ -435,7 +452,7 @@ if ($rate_hits > $rate_limit) {
                                                    blocked_until,
                                                    is_permanent, 
                                                    user_agent) 
-                                           VALUES ('" . xtc_db_prepare_input($ip) . "',
+                                           VALUES ('" . xtc_db_input($ip) . "',
                                                    'Rate-Limit ueberschritten: " . (int)$rate_hits . " Requests in " . (int)$rate_window . "s',
                                                    0,
                                                    '" . (int)$rate_hits . "',
@@ -443,7 +460,7 @@ if ($rate_hits > $rate_limit) {
                                                    NOW(),
                                                    DATE_ADD(NOW(), INTERVAL " . (int)$block_hours . " HOUR),
                                                    0,
-                                                   '" . xtc_db_prepare_input(isset($_SERVER['HTTP_USER_AGENT']) ? msec_limit_text($_SERVER['HTTP_USER_AGENT'], 255) : '') . "')
+                                                   '" . xtc_db_input(isset($_SERVER['HTTP_USER_AGENT']) ? msec_limit_text($_SERVER['HTTP_USER_AGENT'], 255) : '') . "')
                                                     ON DUPLICATE KEY UPDATE
                                                         reason = VALUES(reason),
                                                         hits = VALUES(hits),
@@ -482,7 +499,7 @@ if ($score <= 0) {
 $lock_name     = 'msec_' . md5($ip);
 $lock_acquired = false;
 
-$lock_query = xtc_db_query("SELECT GET_LOCK('" . xtc_db_prepare_input($lock_name) . "', 2) AS locked");
+$lock_query = xtc_db_query("SELECT GET_LOCK('" . xtc_db_input($lock_name) . "', 2) AS locked");
 
 if ($lock_query) {
     $lock_row      = xtc_db_fetch_array($lock_query);
@@ -518,7 +535,7 @@ $window_minutes = msec_cfg_int('MODULE_BX_SECURITY_SCORE_WINDOW_MINUTES', 10, 1,
 $threshold      = msec_cfg_int('MODULE_BX_SECURITY_BLOCK_THRESHOLD', 25, 1, 500);
 $block_hours    = msec_cfg_int('MODULE_BX_SECURITY_BLOCK_HOURS', 24, 1, 8760);
 
-$summary_query = xtc_db_query("SELECT SUM(score) AS total_score, COUNT(*) AS hits, COUNT(DISTINCT request_path) AS different_paths, MIN(date_added) AS first_seen FROM msec_events WHERE ip_address = '" . xtc_db_prepare_input($ip) . "' AND date_added >= DATE_SUB(NOW(), INTERVAL " . (int)$window_minutes . " MINUTE)");
+$summary_query = xtc_db_query("SELECT SUM(score) AS total_score, COUNT(*) AS hits, COUNT(DISTINCT request_path) AS different_paths, MIN(date_added) AS first_seen FROM msec_events WHERE ip_address = '" . xtc_db_input($ip) . "' AND date_added >= DATE_SUB(NOW(), INTERVAL " . (int)$window_minutes . " MINUTE)");
 $summary       = xtc_db_fetch_array($summary_query);
 
 $total_score     = isset($summary['total_score']) ? (int)$summary['total_score'] : 0;
@@ -541,19 +558,19 @@ if ($score >= $threshold) {
 }
 
 if ($should_block) {
-    xtc_db_query("INSERT INTO msec_blocks (ip_address, reason, score, hits, first_seen, last_seen, blocked_until, is_permanent, user_agent) VALUES ('" . xtc_db_prepare_input($ip) . "',\n            '" . xtc_db_prepare_input(msec_limit_text($block_reason, 255)) . "',\n            '" . (int)$total_score . "',\n            '" . (int)$hits . "',\n            '" . xtc_db_prepare_input($first_seen) . "',\n            NOW(),\n            DATE_ADD(NOW(), INTERVAL " . (int)$block_hours . " HOUR),\n            0,\n            '" . xtc_db_prepare_input($user_agent) . "'\n        )\n        ON DUPLICATE KEY UPDATE\n            reason = VALUES(reason),\n            score = VALUES(score),\n            hits = VALUES(hits),\n            last_seen = NOW(),\n            blocked_until = DATE_ADD(NOW(), INTERVAL " . (int)$block_hours . " HOUR), user_agent = VALUES(user_agent)");
+    xtc_db_query("INSERT INTO msec_blocks (ip_address, reason, score, hits, first_seen, last_seen, blocked_until, is_permanent, user_agent) VALUES ('" . xtc_db_input($ip) . "',\n            '" . xtc_db_input(msec_limit_text($block_reason, 255)) . "',\n            '" . (int)$total_score . "',\n            '" . (int)$hits . "',\n            '" . xtc_db_input($first_seen) . "',\n            NOW(),\n            DATE_ADD(NOW(), INTERVAL " . (int)$block_hours . " HOUR),\n            0,\n            '" . xtc_db_input($user_agent) . "'\n        )\n        ON DUPLICATE KEY UPDATE\n            reason = VALUES(reason),\n            score = VALUES(score),\n            hits = VALUES(hits),\n            last_seen = NOW(),\n            blocked_until = DATE_ADD(NOW(), INTERVAL " . (int)$block_hours . " HOUR), user_agent = VALUES(user_agent)");
 
     xtc_db_query("UPDATE msec_events SET is_blocked = 1 WHERE event_id = '" . (int)$event_id . "'");
 
     if ($lock_acquired) {
-        xtc_db_query("SELECT RELEASE_LOCK('" . xtc_db_prepare_input($lock_name) . "')");
+        xtc_db_query("SELECT RELEASE_LOCK('" . xtc_db_input($lock_name) . "')");
     }
 
     msec_block_response();
 }
 
 if ($lock_acquired) {
-    xtc_db_query("SELECT RELEASE_LOCK('" . xtc_db_prepare_input($lock_name) . "')");
+    xtc_db_query("SELECT RELEASE_LOCK('" . xtc_db_input($lock_name) . "')");
 }
 
 if (msec_maybe_cleanup()) {
