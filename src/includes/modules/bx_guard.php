@@ -18,11 +18,15 @@
      die kein Score-Pattern treffen (z. B. Login-Bruteforce auf legitimen Pfaden)
 ---------------------------------------------------------------------------*/
 
-if (!function_exists('xtc_db_query') || !function_exists('xtc_db_input')) {
+if (!defined('MODULE_BX_SECURITY_MONITOR_STATUS') || MODULE_BX_SECURITY_MONITOR_STATUS !== 'True') {
     return;
 }
 
-if (!defined('MODULE_BX_SECURITY_MONITOR_STATUS') || MODULE_BX_SECURITY_MONITOR_STATUS !== 'True') {
+if (!function_exists('xtc_db_query') || 
+    !function_exists('xtc_db_input') ||
+    !function_exists('xtc_db_fetch_array') ||
+    !function_exists('xtc_db_num_rows') ||
+    !function_exists('xtc_db_insert_id')) {
     return;
 }
 
@@ -558,7 +562,31 @@ if ($score >= $threshold) {
 }
 
 if ($should_block) {
-    xtc_db_query("INSERT INTO msec_blocks (ip_address, reason, score, hits, first_seen, last_seen, blocked_until, is_permanent, user_agent) VALUES ('" . xtc_db_input($ip) . "',\n            '" . xtc_db_input(msec_limit_text($block_reason, 255)) . "',\n            '" . (int)$total_score . "',\n            '" . (int)$hits . "',\n            '" . xtc_db_input($first_seen) . "',\n            NOW(),\n            DATE_ADD(NOW(), INTERVAL " . (int)$block_hours . " HOUR),\n            0,\n            '" . xtc_db_input($user_agent) . "'\n        )\n        ON DUPLICATE KEY UPDATE\n            reason = VALUES(reason),\n            score = VALUES(score),\n            hits = VALUES(hits),\n            last_seen = NOW(),\n            blocked_until = DATE_ADD(NOW(), INTERVAL " . (int)$block_hours . " HOUR), user_agent = VALUES(user_agent)");
+    xtc_db_query("INSERT INTO msec_blocks (ip_address, 
+                                                  reason, 
+                                                  score, 
+                                                  hits, 
+                                                  first_seen, 
+                                                  last_seen, 
+                                                  blocked_until, 
+                                                  is_permanent, 
+                                                  user_agent) 
+                                         VALUES ('" . xtc_db_input($ip) . "', 
+                                                 '" . xtc_db_input(msec_limit_text($block_reason, 255)) . "', 
+                                                 '" . (int)$total_score . "', 
+                                                 '" . (int)$hits . "', 
+                                                 '" . xtc_db_input($first_seen) . "', 
+                                                 NOW(), 
+                                                 DATE_ADD(NOW(), 
+                                                 INTERVAL " . (int)$block_hours . " HOUR),
+                                                 0,
+                                                 '" . xtc_db_input($user_agent) . "')
+                                            ON DUPLICATE KEY UPDATE reason = VALUES(reason),
+                                                                     score = VALUES(score),
+                                                                      hits = VALUES(hits),
+                                                                 last_seen = NOW(),
+                                                             blocked_until = DATE_ADD( NOW(), INTERVAL " . (int)$block_hours . " HOUR), 
+                                                                user_agent = VALUES(user_agent)");
 
     xtc_db_query("UPDATE msec_events SET is_blocked = 1 WHERE event_id = '" . (int)$event_id . "'");
 

@@ -4,6 +4,20 @@ Alle nennenswerten Änderungen am Modul bx-security-monitor werden in dieser Dat
 
 Format orientiert sich an Keep a Changelog.
 
+## [1.2.8] - 2026-07-12
+
+### Changed
+- Error-Handling in `bx_patch_login_admin()` und `bx_patch_xss_secure()` gehärtet: `@unlink()` durch explizite `unlink()`-Aufrufe ersetzt.
+- Rollback-Logik in Patch-Funktionen verbessert: Temporäre Dateien (`.tmp`) und Backup-Dateien werden direkt gelöscht (garantiert vorhanden), `.meta`-Dateien mit `file_exists()`-Check gelöscht (optional, kann bei Altinstallationen fehlende).
+- Konsequentere Exception-Handling-Strategie: Error-Unterdrückung (`@`) nur in Uninstall-Routinen (`secureDelete()`, wenn Dateien potenziell bereits extern gelöscht wurden).
+
+### Security
+- Sichereres Datei-Cleanup: Fehlerbehandlung ist jetzt durch `unlink()`'s natives Error-Handling sichtbar statt via `@` verschleiert, ermöglicht bessere Fehlerdiagnose im Admin-Panel.
+
+### Notes
+- Core-Patch-Strategie bleibt unverändert: `bx_patch_login_admin()` überwacht Admin-Login über Reparaturpfad, `bx_patch_xss_secure()` erweitert die Erkennungsfähigkeiten beider Systeme (siehe `security-schichten-xss-secure-vs-bx-guard.md`).
+- Die neue Dateihandhabung stellt sicher, dass Patch-Installation auch unter ungünstigen Bedingungen (z. B. Dateisystem unter Druck) stabil abläuft.
+
 ## [1.1.0] - 2026-07-11
 
 ### Added

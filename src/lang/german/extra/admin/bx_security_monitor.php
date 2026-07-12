@@ -152,3 +152,13 @@ define('BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_META_MISSING', 'Backup-Metadaten fü
 define('BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_META_INVALID', 'Backup-Metadaten für <code>login_admin.php</code> sind beschädigt. Der Patch-Status kann nicht eindeutig geprüft werden.');
 define('BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_NOT_INSTALLED', 'Der Patch <code>login_admin.php</code> ist nicht installiert.');
 define('BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_OK', 'Der Patch-Status von <code>login_admin.php</code> ist ok.');
+
+define('BX_SECURITY_MONITOR_XSS_SECURE_PHP_PATCH_MISMATCH', 'Der Core-Patch für <code>xss_secure.php</code> wurde extern verändert (z.&nbsp;B. durch ein Shop-Update). Die erweiterte XSS-Überwachung ist möglicherweise nicht mehr aktiv. Bitte Patch-Status prüfen.');
+define('BX_SECURITY_MONITOR_XSS_SECURE_PHP_TARGET_MISSING', 'Die Datei <code>xss_secure.php</code> wurde nicht gefunden. Der Adminbereich könnte beeinträchtigt sein!');
+define('BX_SECURITY_MONITOR_XSS_SECURE_PHP_META_MISSING', 'Backup-Metadaten für <code>xss_secure.php</code> fehlen. Der Patch-Status kann nicht eindeutig geprüft werden.');
+define('BX_SECURITY_MONITOR_XSS_SECURE_PHP_META_INVALID', 'Backup-Metadaten für <code>xss_secure.php</code> sind beschädigt. Der Patch-Status kann nicht eindeutig geprüft werden.');
+define('BX_SECURITY_MONITOR_XSS_SECURE_PHP_NOT_INSTALLED', 'Der Patch <code>xss_secure.php</code> ist nicht installiert.');
+define('BX_SECURITY_MONITOR_XSS_SECURE_PHP_OK', 'Der Patch-Status von <code>xss_secure.php</code> ist ok.');
+
+define('BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_STATUS_UNKNOWN', 'Der Patch-Status von <code>login_admin.php</code> konnte nicht geprüft werden.');
+define('BX_SECURITY_MONITOR_XSS_SECURE_PHP_STATUS_UNKNOWN', 'Der Patch-Status von <code>xss_secure.php</code> konnte nicht geprüft werden.');

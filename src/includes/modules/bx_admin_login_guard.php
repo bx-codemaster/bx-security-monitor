@@ -7,16 +7,20 @@
    Keine Kontosperre, keine 2FA, keine festen Admin-IP-Adressen.
 ---------------------------------------------------------------------------*/
 
-if (!function_exists('xtc_db_query') || !function_exists('xtc_db_input')) {
-    return;
-}
-
 if (
     !defined('MODULE_BX_SECURITY_MONITOR_STATUS')
     || MODULE_BX_SECURITY_MONITOR_STATUS !== 'True'
     || !defined('MODULE_BX_SECURITY_ADMIN_LOGIN_STATUS')
     || MODULE_BX_SECURITY_ADMIN_LOGIN_STATUS !== 'True'
 ) {
+    return;
+}
+
+if (!function_exists('xtc_db_query') || 
+    !function_exists('xtc_db_input') ||
+    !function_exists('xtc_db_fetch_array') ||
+    !function_exists('xtc_db_num_rows') ||
+    !function_exists('xtc_db_insert_id')) {
     return;
 }
 

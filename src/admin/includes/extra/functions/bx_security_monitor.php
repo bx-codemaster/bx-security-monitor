@@ -29,33 +29,6 @@ function msec_admin_column_exists(string $table, string $column): bool|int {
     return xtc_db_num_rows($query) > 0;
 }
 
-function msec_admin_redirect(): void {
-    xtc_redirect(xtc_href_link('msec_security.php'));
-}
-
-function msec_admin_config_upsert(string $key, string $value, string $title, string $description, int $sort_order): void {
-    $table  = defined('TABLE_CONFIGURATION') ? TABLE_CONFIGURATION : 'configuration';
-    $exists = xtc_db_query("SELECT configuration_id FROM " . $table . " WHERE configuration_key = '" . xtc_db_input($key) . "' LIMIT 1");
-
-    if (xtc_db_num_rows($exists) > 0) {
-        xtc_db_query("UPDATE " . $table . " SET configuration_value = '" . xtc_db_input($value) . "', last_modified = NOW() WHERE configuration_key = '" . xtc_db_input($key) . "'");
-        return;
-    }
-
-    $data = array(
-        'configuration_title' => $title,
-        'configuration_key' => $key,
-        'configuration_value' => $value,
-        'configuration_description' => $description,
-        'configuration_group_id' => 6,
-        'sort_order' => (int)$sort_order,
-        'date_added' => 'now()',
-        'use_function' => '',
-        'set_function' => ''
-    );
-    xtc_db_perform($table, $data);
-}
-
 function msec_admin_rebuild_rule_cache() {
     if (!msec_admin_table_exists('msec_manual_rules')) {
         return;
@@ -79,10 +52,7 @@ function msec_admin_rebuild_rule_cache() {
     xtc_db_query("UPDATE " . TABLE_CONFIGURATION . " SET configuration_value = '" . xtc_db_prepare_input($cache) . "', last_modified = NOW() WHERE configuration_key = 'MODULE_BX_SECURITY_MANUAL_RULES_CACHE'");
 }
 
-
-function msec_check_login_patch_status(): string {
-  $target    = DIR_FS_CATALOG . 'login_admin.php';
-  $backup    = DIR_FS_CATALOG . 'login_admin.php.bx-backup';
+function msec_check_patch_status(string $target, string $backup): string {
   $meta_file = $backup . '.meta';
 
   // Kein Backup -> Patch wurde nie installiert (oder sauber zurückgesetzt)
@@ -101,7 +71,7 @@ function msec_check_login_patch_status(): string {
   }
 
   if (!file_exists($target)) {
-    // login_admin.php fehlt komplett - kritisch!
+    // Zieldatei fehlt komplett - kritisch!
     return 'target_missing';
   }
 
@@ -112,4 +82,67 @@ function msec_check_login_patch_status(): string {
   }
 
   return 'mismatch'; // Core-Update oder Fremdänderung hat den Patch überschrieben
+}
+
+/**
+ * Gibt den Patch-Status in der Admin-Oberfläche aus.
+ * @param string $status
+ * @param array $messages
+ */
+function msec_render_patch_status(string $status, array $messages): void {
+    $style_map = [
+        'ok'            => ['class' => 'success_message', 'icon' => '✅'],
+        'not_installed' => ['class' => 'warning_message', 'icon' => 'ℹ️'],
+        'mismatch'      => ['class' => 'warning_message', 'icon' => '⚠️'],
+        'target_missing'=> ['class' => 'warning_message', 'icon' => '⚠️'],
+        'meta_invalid'  => ['class' => 'warning_message', 'icon' => '⚠️'],
+        'meta_missing'  => ['class' => 'error_message',   'icon' => '❌'],
+        'unknown'       => ['class' => 'error_message',   'icon' => '❌'],
+    ];
+
+    $style = $style_map[$status] ?? ['class' => 'warning_message', 'icon' => '⚠️'];
+    $text  = $messages[$status]  ?? $messages['unknown'] ?? 'Unbekannter Status';
+
+    echo '<div class="'.$style['class'].'" style="padding: 5px;">'.$style['icon'].' '.$text.'</div>';
+}
+
+/**
+ * Spiegelt die msec_whitelist-Tabelle als reine Textdatei, damit
+ * xss_secure.php (läuft VOR der DB-Verbindung in application_top.php)
+ * die Whitelist ohne DB-Zugriff auswerten kann.
+ */
+function bx_sync_whitelist_file(): bool {
+    global $messageStack;
+
+    $file = DIR_FS_CATALOG . 'log/msec_whitelist_mirror.log';
+    $tmp  = $file . '.tmp';
+
+    $rows = xtc_db_query("SELECT ip_address FROM msec_whitelist");
+    if (!$rows) {
+        $messageStack->add_session('Whitelist-Spiegeldatei konnte nicht aktualisiert werden (DB-Fehler).', 'error');
+        return false;
+    }
+
+    $ips = array();
+    while ($row = xtc_db_fetch_array($rows)) {
+        $ip = trim((string)$row['ip_address']);
+        if (filter_var($ip, FILTER_VALIDATE_IP)) {
+            $ips[] = $ip;
+        }
+    }
+
+    $written = @file_put_contents($tmp, implode("\n", $ips));
+    if ($written === false) {
+        $messageStack->add_session('Whitelist-Spiegeldatei konnte nicht geschrieben werden. Prüfe Schreibrechte auf ' . dirname($file), 'error');
+        @unlink($tmp);
+        return false;
+    }
+
+    if (!@rename($tmp, $file)) {
+        $messageStack->add_session('Whitelist-Spiegeldatei konnte nicht aktiviert werden.', 'error');
+        @unlink($tmp);
+        return false;
+    }
+
+    return true;
 }

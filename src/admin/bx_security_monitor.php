@@ -289,7 +289,7 @@ switch($action) {
             xtc_db_query("INSERT INTO msec_whitelist (ip_address, note, date_added) VALUES ('" . xtc_db_prepare_input($ip) . "', '" . xtc_db_prepare_input($note) . "', NOW()) ON DUPLICATE KEY UPDATE note = VALUES(note)");
             xtc_db_query("DELETE FROM msec_blocks WHERE ip_address = '" . xtc_db_prepare_input($ip) . "'");
         }
-        
+        bx_sync_whitelist_file();
         $messageStack->add_session(BX_SECURITY_MONITOR_LIST_UPDATED, 'success');
         xtc_redirect($anker_url);
         break;
@@ -303,6 +303,7 @@ switch($action) {
             xtc_db_query("INSERT INTO msec_whitelist (ip_address, note, date_added) VALUES ('" . xtc_db_prepare_input($ip) . "', 'Aus automatischer Sperre übernommen', NOW()) ON DUPLICATE KEY UPDATE note = VALUES(note)");
             xtc_db_query("DELETE FROM msec_blocks WHERE ip_address = '" . xtc_db_prepare_input($ip) . "'");
         }
+        bx_sync_whitelist_file();
         $messageStack->add_session(BX_SECURITY_MONITOR_ENTRY_TAKEN_OVER, 'success');
         xtc_redirect($anker_url);
         break;
@@ -315,6 +316,7 @@ switch($action) {
         if ($whitelist_id > 0) {
             xtc_db_query("DELETE FROM msec_whitelist WHERE whitelist_id = '" . $whitelist_id. "'");
         }
+        bx_sync_whitelist_file();
         $messageStack->add_session(BX_SECURITY_MONITOR_WHITELIST_ENTRY_DELETED, 'success');
         xtc_redirect($anker_url);
         break;
@@ -341,12 +343,17 @@ switch($action) {
         break;
 }
 
+$check_fn = 'msec_check_patch_status';
+
 // Check if the login_admin.php patch is applied
-if(function_exists('msec_check_login_patch_status')) {
-    $patch_status = msec_check_login_patch_status();
-} else {
-    $patch_status = 'unknown';
-}
+$admin_patch_status = function_exists($check_fn)
+    ? $check_fn(DIR_FS_CATALOG . 'login_admin.php', DIR_FS_CATALOG . 'login_admin.php.bx-backup')
+    : 'unknown';
+
+// Check if the xss_secure.php patch is applied
+$xss_patch_status = function_exists($check_fn)
+    ? $check_fn(DIR_FS_CATALOG . 'includes/xss_secure.php', DIR_FS_CATALOG . 'includes/xss_secure.php.bx-backup')
+    : 'unknown';
 
 require_once (DIR_WS_INCLUDES.'head.php');
 
@@ -374,36 +381,41 @@ $messageStack->output();
       <div class="pageHeadingImage" style="width: 42px;">
         <?php echo xtc_image(DIR_WS_ICONS.'heading/bx-security-monitor.png', BX_SECURITY_MONITOR_TITLE_TAG, '', '', 'style="height: 40px;"'); ?>
       </div>
-      <div class="pageHeading flt-r">
-        <?php
-        switch ($patch_status) {
-        case 'mismatch':
-            echo '<div class="warning_message">⚠️ '.BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_PATCH_MISMATCH.'</div>';
-            break;
-        case 'target_missing':
-            echo '<div class="warning_message">⚠️ '.BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_TARGET_MISSING.'</div>';
-            break;
-        case 'meta_missing':
-            echo '<div class="warning_message">⚠️ '.BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_META_MISSING.'</div>';
-            break;
-        case 'meta_invalid':
-            echo '<div class="warning_message">⚠️ '.BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_META_INVALID.'</div>';
-            break;
-        case 'not_installed':
-            echo '<div class="success_message">✅ '.BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_NOT_INSTALLED.'</div>';
-            break;
-        case 'ok':
-            echo '<div class="success_message">✅ '.BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_OK.'</div>';
-            break;
-        }
-        ?>
-      </div>
       <div class="pageHeading flt-l">
         <?php echo BX_SECURITY_MONITOR_TITLE; ?>
         <div class="main">
           <?php echo BX_SECURITY_MONITOR_DESCRIPTION; ?>
         </div>
       </div>
+
+      <div class="pageHeading flt-r">
+        <?php
+            msec_render_patch_status($xss_patch_status, [
+                'mismatch'       => BX_SECURITY_MONITOR_XSS_SECURE_PHP_PATCH_MISMATCH,
+                'target_missing' => BX_SECURITY_MONITOR_XSS_SECURE_PHP_TARGET_MISSING,
+                'meta_missing'   => BX_SECURITY_MONITOR_XSS_SECURE_PHP_META_MISSING,
+                'meta_invalid'   => BX_SECURITY_MONITOR_XSS_SECURE_PHP_META_INVALID,
+                'not_installed'  => BX_SECURITY_MONITOR_XSS_SECURE_PHP_NOT_INSTALLED,
+                'ok'             => BX_SECURITY_MONITOR_XSS_SECURE_PHP_OK,
+                'unknown'        => BX_SECURITY_MONITOR_XSS_SECURE_PHP_STATUS_UNKNOWN,
+            ]);
+        ?>
+      </div>
+
+      <div class="pageHeading flt-r">
+          <?php
+            msec_render_patch_status($admin_patch_status, [
+                'mismatch'       => BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_PATCH_MISMATCH,
+                'target_missing' => BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_TARGET_MISSING,
+                'meta_missing'   => BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_META_MISSING,
+                'meta_invalid'   => BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_META_INVALID,
+                'not_installed'  => BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_NOT_INSTALLED,
+                'ok'             => BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_OK,
+                'unknown'        => BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_STATUS_UNKNOWN,
+            ]);
+          ?>
+      </div>
+
       <div class="clear"></div>
 
       <table class="tableCenter" style="margin-top: 5px;">

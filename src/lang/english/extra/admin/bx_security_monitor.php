@@ -152,3 +152,13 @@ define('BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_META_MISSING', 'Backup metadata for 
 define('BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_META_INVALID', 'Backup metadata for <code>login_admin.php</code> is corrupted. The patch status cannot be determined.');
 define('BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_NOT_INSTALLED', 'The patch <code>login_admin.php</code> is not installed.');
 define('BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_OK', 'The patch status of <code>login_admin.php</code> is OK.');
+
+define('BX_SECURITY_MONITOR_XSS_SECURE_PHP_PATCH_MISMATCH', 'The core patch for <code>xss_secure.php</code> has been modified externally (e.g. by a shop update). The enhanced XSS monitoring may no longer be active. Please check the patch status.');
+define('BX_SECURITY_MONITOR_XSS_SECURE_PHP_TARGET_MISSING', 'The file <code>xss_secure.php</code> is missing. The admin area may be affected!');
+define('BX_SECURITY_MONITOR_XSS_SECURE_PHP_META_MISSING', 'Backup metadata for <code>xss_secure.php</code> is missing. The patch status cannot be determined.');
+define('BX_SECURITY_MONITOR_XSS_SECURE_PHP_META_INVALID', 'Backup metadata for <code>xss_secure.php</code> is corrupted. The patch status cannot be determined.');
+define('BX_SECURITY_MONITOR_XSS_SECURE_PHP_NOT_INSTALLED', 'The patch <code>xss_secure.php</code> is not installed.');
+define('BX_SECURITY_MONITOR_XSS_SECURE_PHP_OK', 'The patch status of <code>xss_secure.php</code> is OK.');
+
+define('BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_STATUS_UNKNOWN', 'The patch status of <code>login_admin.php</code> could not be determined.');
+define('BX_SECURITY_MONITOR_XSS_SECURE_PHP_STATUS_UNKNOWN', 'The patch status of <code>xss_secure.php</code> could not be determined.');

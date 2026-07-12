@@ -28,7 +28,7 @@ Aus den Ursprungstexten README_DE.txt und BESCHREIBUNG_FUER_WEITERGABE.txt wurde
 - Keine externe API, keine Cloud-Abhängigkeit, Speicherung in der lokalen Datenbank
 
 ## Kurzüberblick: Was wurde erweitert
-Im aktuellen Modulstand 1.1.0 wurden gegenüber 1.0.0 insbesondere folgende technische Verbesserungen umgesetzt:
+Im aktuellen Modulstand 1.2.8 wurden gegenüber 1.0.0 insbesondere folgende technische Verbesserungen umgesetzt:
 - ReDoS-Härtung durch Längenbegrenzung von Pfad und URI vor Regex-Auswertung
 - Race-Condition-Schutz im Scoring/Blocking durch GET_LOCK je IP
 - Housekeeping nicht mehr nur zufällig, sondern intervallbasiert mit APCu (Fallback bleibt vorhanden)

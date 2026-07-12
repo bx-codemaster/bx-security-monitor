@@ -13,7 +13,6 @@
 
   class bx_security_monitor {
     public string $code;
-    public string $version;
     public string $title;
     public string $description;
     public bool $enabled;
@@ -45,9 +44,7 @@
       return $this->_check;
     }
 
-    public function install(): void {
-      global $messageStack;
-      
+    public function install(): void {      
       xtc_db_query("ALTER TABLE " . TABLE_ADMIN_ACCESS . " ADD bx_security_monitor INTEGER(1)");
       xtc_db_query("UPDATE ".TABLE_ADMIN_ACCESS." SET bx_security_monitor = 1");
 
@@ -326,8 +323,8 @@
           KEY is_enabled (is_enabled)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
-      $patch_ok = $this->bx_patch_login_admin();
-
+      $admin_patch_ok = $this->bx_patch_login_admin();
+      $xss_patch_ok   = $this->bx_patch_xss_secure();
     }
 
     public function remove(): void {
@@ -344,7 +341,12 @@
 
       xtc_db_query("ALTER TABLE " . TABLE_ADMIN_ACCESS . " DROP COLUMN bx_security_monitor");
 
-      $unpatch_ok = $this->bx_unpatch_login_admin();
+      $admin_unpatch_ok = $this->bx_unpatch_login_admin();
+      $xss_unpatch_ok   = $this->bx_unpatch_xss_secure();
+
+      if(file_exists(DIR_FS_CATALOG . 'log/msec_whitelist_mirror.log')) {
+        unlink(DIR_FS_CATALOG . 'log/msec_whitelist_mirror.log');
+      }
     }
 
     public function keys(): array {
@@ -384,7 +386,9 @@
       $dirs_and_files[] = DIR_FS_ADMIN . 'includes/extra/javascript/bx_security_monitor.php';
       $dirs_and_files[] = DIR_FS_ADMIN . 'includes/extra/menu/bx_security_monitor.php';
       $dirs_and_files[] = DIR_FS_CATALOG . 'includes/data/login_admin.original.php';
-      $dirs_and_files[] = DIR_FS_CATALOG . 'includes/data/login_admin.patched.php';      
+      $dirs_and_files[] = DIR_FS_CATALOG . 'includes/data/login_admin.patched.php'; 
+      $dirs_and_files[] = DIR_FS_CATALOG . 'includes/data/xss_secure.original.php';
+      $dirs_and_files[] = DIR_FS_CATALOG . 'includes/data/xss_secure.patched.php';
       $dirs_and_files[] = DIR_FS_CATALOG . 'includes/extra/application_top/application_top_begin/bx_security_bootstrap.php';
       $dirs_and_files[] = DIR_FS_CATALOG . 'includes/extra/application_top/application_top_end/bx_security_session.php';
       $dirs_and_files[] = DIR_FS_CATALOG . 'includes/modules/bx_admin_login_guard.php';
@@ -523,7 +527,7 @@
 
       // Backup verifizieren
       if (hash_file('sha256', $backup) !== hash_file('sha256', $original_ref)) {
-        @unlink($backup);
+        unlink($backup);
         $messageStack->add_session('Backup-Verifikation fehlgeschlagen. Installation des Patches abgebrochen.', 'error');
         return false;
       }
@@ -538,7 +542,7 @@
 
       if ($meta_written === false) {
         // Backup zurückrollen, damit kein halb-installierter Zustand zurückbleibt
-        @unlink($backup);
+        unlink($backup);
         $messageStack->add_session('Metadaten für den Login-Patch konnten nicht geschrieben werden.', 'error');
         return false;
       }
@@ -547,16 +551,16 @@
       $tmp = $target . '.tmp';
 
       if (!copy($patched_src, $tmp)) {
-        @unlink($backup);
-        @unlink($backup . '.meta');
+        unlink($backup);
+        unlink($backup . '.meta');
         $messageStack->add_session('Patched-Datei konnte nicht vorbereitet werden.', 'error');
         return false;
       }
 
       if (!rename($tmp, $target)) {
-        @unlink($tmp);
-        @unlink($backup);
-        @unlink($backup . '.meta');
+        unlink($tmp);
+        unlink($backup);
+        unlink($backup . '.meta');
         $messageStack->add_session('Patch konnte nicht aktiviert werden.', 'error');
         return false;
       }
@@ -603,9 +607,140 @@
         return false;
       }
 
-      @unlink($backup . '.meta');
+      if (file_exists($backup . '.meta')) {
+        unlink($backup . '.meta');
+      }
       $messageStack->add_session('Core-Patch für login_admin.php wurde erfolgreich zurückgesetzt.', 'success');
       return true;
     }
 
+    private function bx_patch_xss_secure(): bool {
+      global $messageStack;
+
+      $target       = DIR_FS_CATALOG . 'includes/xss_secure.php';
+      $backup       = DIR_FS_CATALOG . 'includes/xss_secure.php.bx-backup';
+      $original_ref = DIR_FS_CATALOG . 'includes/data/xss_secure.original.php';
+      $patched_src  = DIR_FS_CATALOG . 'includes/data/xss_secure.patched.php';
+
+      // Bereits installiert? -> kein Fehler, Ziel-Zustand ist erreicht
+      if (file_exists($backup)) {
+        $messageStack->add_session('Core-Patch für xss_secure.php ist bereits installiert.', 'info');
+        return true;
+      }
+
+      // Referenzdateien vorhanden?
+      if (!file_exists($original_ref) || !file_exists($patched_src)) {
+        $messageStack->add_session('Referenzdateien für den xss_secure-Patch fehlen im Modulverzeichnis.', 'error');
+        return false;
+      }
+
+      // Rechte prüfen
+      if (!is_writable($target) || !is_writable(dirname($target))) {
+        $messageStack->add_session('Keine Schreibrechte auf ' . $target, 'error');
+        return false;
+      }
+
+      // Ist die aktuelle Datei noch die erwartete Original-Version?
+      // Falls nicht: Core wurde zwischenzeitlich aktualisiert -> abbrechen statt blind patchen.
+      if (hash_file('sha256', $target) !== hash_file('sha256', $original_ref)) {
+        $messageStack->add_session(
+          'xss_secure.php weicht von der erwarteten Original-Version ab. ' .
+          'Vermutlich wurde der Shop-Core zwischenzeitlich aktualisiert. ' .
+          'Bitte den Patch manuell prüfen und ggf. anpassen, bevor du installierst.',
+          'error'
+        );
+        return false;
+      }
+
+      // Backup erstellen
+      if (!copy($target, $backup)) {
+        $messageStack->add_session('Backup von xss_secure.php konnte nicht erstellt werden.', 'error');
+        return false;
+      }
+
+      // Backup verifizieren
+      if (hash_file('sha256', $backup) !== hash_file('sha256', $original_ref)) {
+        unlink($backup);
+        $messageStack->add_session('Backup-Verifikation fehlgeschlagen. Installation des xss_secure-Patches abgebrochen.', 'error');
+        return false;
+      }
+
+      // Metadaten sichern (u.a. für spätere Update-Erkennung im Admin-Panel)
+      $meta_written = file_put_contents($backup . '.meta', json_encode([
+          'original_hash'  => hash_file('sha256', $original_ref),
+          'patched_hash'   => hash_file('sha256', $patched_src),
+          'installed_at'   => date('c'),
+          'module_version' => defined('MEINMODUL_VERSION') ? MEINMODUL_VERSION : null,
+      ], JSON_PRETTY_PRINT));
+
+      if ($meta_written === false) {
+        // Backup zurückrollen, damit kein halb-installierter Zustand zurückbleibt
+        unlink($backup);
+        $messageStack->add_session('Metadaten für den xss_secure-Patch konnten nicht geschrieben werden.', 'error');
+        return false;
+      }
+
+      // Atomar einspielen: erst als .tmp kopieren, dann umbenennen
+      $tmp = $target . '.tmp';
+
+      if (!copy($patched_src, $tmp)) {
+        unlink($backup);
+        unlink($backup . '.meta');
+        $messageStack->add_session('Patched-Datei konnte nicht vorbereitet werden.', 'error');
+        return false;
+      }
+
+      if (!rename($tmp, $target)) {
+        unlink($tmp);
+        unlink($backup);
+        unlink($backup . '.meta');
+        $messageStack->add_session('Patch konnte nicht aktiviert werden.', 'error');
+        return false;
+      }
+
+      $messageStack->add_session('Core-Patch für xss_secure.php wurde erfolgreich installiert.', 'success');
+      return true;
+    }
+
+    private function bx_unpatch_xss_secure(): bool {
+      global $messageStack;
+
+      $target      = DIR_FS_CATALOG . 'includes/xss_secure.php';
+      $backup      = DIR_FS_CATALOG . 'includes/xss_secure.php.bx-backup';
+      $patched_src = DIR_FS_CATALOG . 'includes/data/xss_secure.patched.php';
+
+      if (!file_exists($backup)) {
+        $messageStack->add_session('Kein aktiver Core-Patch für xss_secure.php gefunden.', 'info');
+        return true;
+      }
+
+      if (!file_exists($patched_src)) {
+        $messageStack->add_session(
+          'Referenzdatei für den xss_secure-Patch fehlt. Automatisches Wiederherstellen abgebrochen. ' .
+          'Backup liegt weiterhin unter: ' . $backup, 'error'
+        );
+        return false;
+      }
+
+      if (hash_file('sha256', $target) !== hash_file('sha256', $patched_src)) {
+        $messageStack->add_session(
+          'xss_secure.php wurde seit der Installation verändert. ' .
+          'Automatisches Wiederherstellen wurde abgebrochen, um Datenverlust zu vermeiden. ' .
+          'Dein Original-Backup liegt unverändert unter: ' . $backup, 'error'
+        );
+        return false;
+      }
+
+      if (!rename($backup, $target)) {
+        $messageStack->add_session('Original von xss_secure.php konnte nicht wiederhergestellt werden.', 'error');
+        return false;
+      }
+
+      if (file_exists($backup . '.meta')) {
+        unlink($backup . '.meta');
+      }
+      $messageStack->add_session('Core-Patch für xss_secure.php wurde erfolgreich zurückgesetzt.', 'success');
+      return true;
+    }
+    
   }
