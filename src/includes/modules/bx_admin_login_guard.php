@@ -73,26 +73,6 @@ if (!function_exists('msec_login_trusted')) {
     }
 }
 
-if (!function_exists('msec_is_admin_customer')) {
-    function msec_is_admin_customer(int $customer_id): bool {
-        if ($customer_id <= 0) {
-            return false;
-        }
-
-        $table_customers = defined('TABLE_CUSTOMERS') ? TABLE_CUSTOMERS : 'customers';
-        $query = xtc_db_query("SELECT customers_status
-                                 FROM " . $table_customers . "
-                                WHERE customers_id = '" . (int)$customer_id . "'
-                                LIMIT 1");
-        if (!$query || xtc_db_num_rows($query) < 1) {
-            return false;
-        }
-
-        $data = xtc_db_fetch_array($query);
-        return isset($data['customers_status']) && (string)$data['customers_status'] === '0';
-    }
-}
-
 if (!function_exists('msec_register_failed_admin_login')) {
     function msec_register_failed_admin_login(): void {
         $ip = msec_login_get_ip();
@@ -224,7 +204,7 @@ if (!function_exists('msec_admin_login_shutdown')) {
 
         $is_admin = (
             isset($_SESSION['customer_id'])
-            && msec_is_admin_customer((int)$_SESSION['customer_id'])
+            && (string)($_SESSION["customers_status"]["customers_status"] ?? '') === '0'
         );
 
         if (!$is_admin) {
