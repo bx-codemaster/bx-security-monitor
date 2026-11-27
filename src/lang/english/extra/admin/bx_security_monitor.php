@@ -159,6 +159,24 @@ define('BX_SECURITY_MONITOR_XSS_SECURE_PHP_META_MISSING', 'Backup metadata for <
 define('BX_SECURITY_MONITOR_XSS_SECURE_PHP_META_INVALID', 'Backup metadata for <code>xss_secure.php</code> is corrupted. The patch status cannot be determined.');
 define('BX_SECURITY_MONITOR_XSS_SECURE_PHP_NOT_INSTALLED', 'The patch <code>xss_secure.php</code> is not installed.');
 define('BX_SECURITY_MONITOR_XSS_SECURE_PHP_OK', 'The patch status of <code>xss_secure.php</code> is OK.');
+define('BX_SECURITY_MONITOR_XSS_PATCH_APPLY', 'Install / update XSS patch');
+define('BX_SECURITY_MONITOR_LOGIN_PATCH_APPLY', 'Install / update login patch');
+define('BX_SECURITY_MONITOR_CORE_PATCH_INVALID_REQUEST', 'Core patches can only be installed using the form.');
+define('BX_SECURITY_MONITOR_CORE_PATCH_REGISTRY_ERROR', 'Core patch for %s aborted: the registry or reference files are invalid. See the error log for details.');
+define('BX_SECURITY_MONITOR_CORE_PATCH_INVALID_BACKUP', 'Core patch for %s aborted: the backup or metadata is missing or invalid.');
+define('BX_SECURITY_MONITOR_CORE_PATCH_ALREADY_INSTALLED', 'The current core patch for %s is already installed.');
+define('BX_SECURITY_MONITOR_CORE_PATCH_UPDATE_REQUIRED', 'Core patch for %s aborted: the file matches neither a supported original nor an updatable patch. Please check manually.');
+define('BX_SECURITY_MONITOR_CORE_PATCH_ARCHIVE_EXISTS', 'Core patch for %s aborted: a previous backup archive already exists. Please inspect and preserve it separately.');
+define('BX_SECURITY_MONITOR_CORE_PATCH_ARCHIVE_FAILED', 'The previous backup of %s could not be archived.');
+define('BX_SECURITY_MONITOR_CORE_PATCH_ARCHIVE_RESTORE_FAILED', 'The previous backup of %s could not be fully restored. Please inspect the .previous files manually.');
+define('BX_SECURITY_MONITOR_CORE_PATCH_HASH_FAILED', 'Core patch for %s aborted: hashes could not be calculated or verified.');
+define('BX_SECURITY_MONITOR_CORE_PATCH_BACKUP_FAILED', 'The backup of %s could not be created.');
+define('BX_SECURITY_MONITOR_CORE_PATCH_META_WRITE_FAILED', 'Metadata for the core patch of %s could not be written.');
+define('BX_SECURITY_MONITOR_CORE_PATCH_META_REMOVE_FAILED', '%s was restored, but the backup metadata could not be removed.');
+define('BX_SECURITY_MONITOR_CORE_PATCH_INSTALLED', 'The core patch for %s was installed.');
+define('BX_SECURITY_MONITOR_CORE_PATCH_NOT_INSTALLED', 'No active core patch for %s was found.');
+define('BX_SECURITY_MONITOR_CORE_PATCH_RESTORE_FAILED', 'The original %s could not be restored.');
+define('BX_SECURITY_MONITOR_CORE_PATCH_RESTORED', 'The core patch for %s was reverted.');
 
 define('BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_STATUS_UNKNOWN', 'The patch status of <code>login_admin.php</code> could not be determined.');
 define('BX_SECURITY_MONITOR_XSS_SECURE_PHP_STATUS_UNKNOWN', 'The patch status of <code>xss_secure.php</code> could not be determined.');

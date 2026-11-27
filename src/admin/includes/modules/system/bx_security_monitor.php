@@ -15,16 +15,20 @@
     public string $code;
     public string $title;
     public string $description;
-    public bool $enabled;
-    private bool $_check;
+    public int    $sort_order;
+    public bool   $enabled;
+    private bool  $_check;
 	  public string $development_status; // 'p' = production ready, 'd' = in development, '' = Idee/Konzept
+    public string $version;
 
     public function __construct() {
       $this->code        = 'bx_security_monitor';
       $this->title       = MODULE_BX_SECURITY_MONITOR_STATUS_TITLE;
       $this->description = MODULE_BX_SECURITY_MONITOR_STATUS_DESC;
+      $this->sort_order  = defined('MODULE_BX_SECURITY_MONITOR_SORT_ORDER') ? (int)MODULE_BX_SECURITY_MONITOR_SORT_ORDER : 0;
       $this->enabled     = ((defined('MODULE_BX_SECURITY_MONITOR_STATUS') && MODULE_BX_SECURITY_MONITOR_STATUS == 'True') ? true : false);
       $this->development_status = 'p';
+      $this->version     = '1.5.2';
     }
 
     public function process($file): void {
@@ -60,195 +64,195 @@
       $freeSort = xtc_db_fetch_array($freeSort_query);
 
       xtc_db_query("INSERT INTO ".TABLE_CONFIGURATION_GROUP." ( configuration_group_id, 
-                                                                      configuration_group_title, 
-                                                                      configuration_group_description, 
-                                                                      sort_order, 
-                                                                      visible ) 
-                                                            VALUES ( '" . (int)$freeId['id'] . "', 
-                                                                      '" . xtc_db_input('BX Security Monitor') . "', 
-                                                                      '" . xtc_db_input('Settings for the BX Security Monitor module') . "', 
-                                                                      '" . (int)$freeSort['sort_order'] . "',
-                                                                      1 );");
+                                                                configuration_group_title, 
+                                                                configuration_group_description, 
+                                                                sort_order, 
+                                                                visible ) 
+                                                      VALUES ( '" . (int)$freeId['id'] . "', 
+                                                                '" . xtc_db_input('BX Security Monitor') . "', 
+                                                                '" . xtc_db_input('Settings for the BX Security Monitor module') . "', 
+                                                                '" . (int)$freeSort['sort_order'] . "',
+                                                                1 );");
 
       xtc_db_query("INSERT INTO ".TABLE_CONFIGURATION." ( configuration_id, 
-                                                                configuration_key, 
-                                                                configuration_value, 
-                                                                configuration_group_id, 
-                                                                sort_order, 
-                                                                set_function, 
-                                                                date_added ) 
-                                                      VALUES ( '', 
-                                                                'MODULE_BX_SECURITY_MONITOR_STATUS', 
-                                                                'True',  
-                                                                '6', 
-                                                                '1', 
-                                                                'xtc_cfg_select_option(array(\'True\', \'False\'), ',
-                                                                now() );");
+                                                          configuration_key, 
+                                                          configuration_value, 
+                                                          configuration_group_id, 
+                                                          sort_order, 
+                                                          set_function, 
+                                                          date_added ) 
+                                                VALUES ( '', 
+                                                          'MODULE_BX_SECURITY_MONITOR_STATUS', 
+                                                          'True',  
+                                                          '6', 
+                                                          '1', 
+                                                          'xtc_cfg_select_option(array(\'True\', \'False\'), ',
+                                                          now() );");
 
       xtc_db_query("INSERT INTO " . TABLE_CONFIGURATION . " ( configuration_key,
-                                                                    configuration_value,
-                                                                    configuration_group_id,
-                                                                    sort_order,
-                                                                    use_function,
-                                                                    set_function,
-                                                                    date_added)
-                                                                  VALUES ('MODULE_BX_SECURITY_MONITOR_CONFIG_GROUP_ID',
-                                                                    '".(int)$freeId['id']."',
-                                                                    '6', 
-                                                                    '2',
-                                                                    NULL,
-                                                                    'bx_configuration_field_version(',
-                                                                    now())");
+                                                              configuration_value,
+                                                              configuration_group_id,
+                                                              sort_order,
+                                                              use_function,
+                                                              set_function,
+                                                              date_added)
+                                                            VALUES ('MODULE_BX_SECURITY_MONITOR_CONFIG_GROUP_ID',
+                                                              '".(int)$freeId['id']."',
+                                                              '6', 
+                                                              '2',
+                                                              NULL,
+                                                              'bx_configuration_field_version(',
+                                                              now())");
 
       xtc_db_query("INSERT INTO " . TABLE_CONFIGURATION . " ( configuration_key,
-                                                                    configuration_value,
-                                                                    configuration_group_id,
-                                                                    sort_order,
-                                                                    use_function,
-                                                                    set_function,
-                                                                    date_added)
-                                                                  VALUES ('MODULE_BX_SECURITY_SCANNER_STATUS',
-                                                                    'True', 
-                                                                    '".(int)$freeId['id']."',
-                                                                    '1',
-                                                                    NULL,
-                                                                    'xtc_cfg_select_option(array(\'True\', \'False\'), ', 
-                                                                    now())");
+                                                              configuration_value,
+                                                              configuration_group_id,
+                                                              sort_order,
+                                                              use_function,
+                                                              set_function,
+                                                              date_added)
+                                                            VALUES ('MODULE_BX_SECURITY_SCANNER_STATUS',
+                                                              'True', 
+                                                              '".(int)$freeId['id']."',
+                                                              '1',
+                                                              NULL,
+                                                              'xtc_cfg_select_option(array(\'True\', \'False\'), ', 
+                                                              now())");
 
       xtc_db_query("INSERT INTO " . TABLE_CONFIGURATION . " ( configuration_key,
-                                                                    configuration_value,
-                                                                    configuration_group_id,
-                                                                    sort_order,
-                                                                    use_function,
-                                                                    set_function,
-                                                                    date_added)
-                                                                  VALUES ('MODULE_BX_SECURITY_BLOCK_THRESHOLD',
-                                                                    '25', 
-                                                                    '".(int)$freeId['id']."',
-                                                                    '2',
-                                                                    NULL,
-                                                                    '',
-                                                                    now())");
+                                                              configuration_value,
+                                                              configuration_group_id,
+                                                              sort_order,
+                                                              use_function,
+                                                              set_function,
+                                                              date_added)
+                                                            VALUES ('MODULE_BX_SECURITY_BLOCK_THRESHOLD',
+                                                              '25', 
+                                                              '".(int)$freeId['id']."',
+                                                              '2',
+                                                              NULL,
+                                                              '',
+                                                              now())");
 
       xtc_db_query("INSERT INTO " . TABLE_CONFIGURATION . " ( configuration_key,
-                                                                    configuration_value,
-                                                                    configuration_group_id,
-                                                                    sort_order,
-                                                                    use_function,
-                                                                    set_function,
-                                                                    date_added)
-                                                                  VALUES ('MODULE_BX_SECURITY_SCORE_WINDOW_MINUTES',
-                                                                    '10', 
-                                                                    '".(int)$freeId['id']."',
-                                                                    '3',
-                                                                    NULL,
-                                                                    '',
-                                                                    now())");
+                                                              configuration_value,
+                                                              configuration_group_id,
+                                                              sort_order,
+                                                              use_function,
+                                                              set_function,
+                                                              date_added)
+                                                            VALUES ('MODULE_BX_SECURITY_SCORE_WINDOW_MINUTES',
+                                                              '10', 
+                                                              '".(int)$freeId['id']."',
+                                                              '3',
+                                                              NULL,
+                                                              '',
+                                                              now())");
 
       xtc_db_query("INSERT INTO " . TABLE_CONFIGURATION . " ( configuration_key,
-                                                                    configuration_value,
-                                                                    configuration_group_id,
-                                                                    sort_order,
-                                                                    use_function,
-                                                                    set_function,
-                                                                    date_added)
-                                                                  VALUES ('MODULE_BX_SECURITY_BLOCK_HOURS',
-                                                                    '24', 
-                                                                    '".(int)$freeId['id']."',
-                                                                    '4',
-                                                                    NULL,
-                                                                    '',
-                                                                    now())");
+                                                              configuration_value,
+                                                              configuration_group_id,
+                                                              sort_order,
+                                                              use_function,
+                                                              set_function,
+                                                              date_added)
+                                                            VALUES ('MODULE_BX_SECURITY_BLOCK_HOURS',
+                                                              '24', 
+                                                              '".(int)$freeId['id']."',
+                                                              '4',
+                                                              NULL,
+                                                              '',
+                                                              now())");
 
       xtc_db_query("INSERT INTO " . TABLE_CONFIGURATION . " ( configuration_key,
-                                                                    configuration_value,
-                                                                    configuration_group_id,
-                                                                    sort_order,
-                                                                    use_function,
-                                                                    set_function,
-                                                                    date_added)
-                                                                  VALUES ('MODULE_BX_SECURITY_EVENT_RETENTION_DAYS',
-                                                                    '14', 
-                                                                    '".(int)$freeId['id']."',
-                                                                    '5',
-                                                                    NULL,
-                                                                    '',
-                                                                    now())");
+                                                              configuration_value,
+                                                              configuration_group_id,
+                                                              sort_order,
+                                                              use_function,
+                                                              set_function,
+                                                              date_added)
+                                                            VALUES ('MODULE_BX_SECURITY_EVENT_RETENTION_DAYS',
+                                                              '14', 
+                                                              '".(int)$freeId['id']."',
+                                                              '5',
+                                                              NULL,
+                                                              '',
+                                                              now())");
 
       xtc_db_query("INSERT INTO " . TABLE_CONFIGURATION . " ( configuration_key,
-                                                                    configuration_value,
-                                                                    configuration_group_id,
-                                                                    sort_order,
-                                                                    use_function,
-                                                                    set_function,
-                                                                    date_added)
-                                                                  VALUES ('MODULE_BX_SECURITY_ADMIN_LOGIN_STATUS',
-                                                                    'True', 
-                                                                    '".(int)$freeId['id']."',
-                                                                    '6',
-                                                                    NULL,
-                                                                    'xtc_cfg_select_option(array(\'True\', \'False\'), ', 
-                                                                    now())");
+                                                              configuration_value,
+                                                              configuration_group_id,
+                                                              sort_order,
+                                                              use_function,
+                                                              set_function,
+                                                              date_added)
+                                                            VALUES ('MODULE_BX_SECURITY_ADMIN_LOGIN_STATUS',
+                                                              'True', 
+                                                              '".(int)$freeId['id']."',
+                                                              '6',
+                                                              NULL,
+                                                              'xtc_cfg_select_option(array(\'True\', \'False\'), ', 
+                                                              now())");
 
       xtc_db_query("INSERT INTO " . TABLE_CONFIGURATION . " ( configuration_key,
-                                                                    configuration_value,
-                                                                    configuration_group_id,
-                                                                    sort_order,
-                                                                    use_function,
-                                                                    set_function,
-                                                                    date_added)
-                                                                  VALUES ('MODULE_BX_SECURITY_ADMIN_LOGIN_MAX_ATTEMPTS',
-                                                                    '10', 
-                                                                    '".(int)$freeId['id']."',
-                                                                    '7',
-                                                                    NULL,
-                                                                    '', 
-                                                                    now())");
+                                                              configuration_value,
+                                                              configuration_group_id,
+                                                              sort_order,
+                                                              use_function,
+                                                              set_function,
+                                                              date_added)
+                                                            VALUES ('MODULE_BX_SECURITY_ADMIN_LOGIN_MAX_ATTEMPTS',
+                                                              '10', 
+                                                              '".(int)$freeId['id']."',
+                                                              '7',
+                                                              NULL,
+                                                              '', 
+                                                              now())");
 
       xtc_db_query("INSERT INTO " . TABLE_CONFIGURATION . " ( configuration_key,
-                                                                    configuration_value,
-                                                                    configuration_group_id,
-                                                                    sort_order,
-                                                                    use_function,
-                                                                    set_function,
-                                                                    date_added)
-                                                                  VALUES ('MODULE_BX_SECURITY_ADMIN_LOGIN_WINDOW_MINUTES',
-                                                                    '15', 
-                                                                    '".(int)$freeId['id']."',
-                                                                    '8',
-                                                                    NULL,
-                                                                    '', 
-                                                                    now())");
+                                                              configuration_value,
+                                                              configuration_group_id,
+                                                              sort_order,
+                                                              use_function,
+                                                              set_function,
+                                                              date_added)
+                                                            VALUES ('MODULE_BX_SECURITY_ADMIN_LOGIN_WINDOW_MINUTES',
+                                                              '15', 
+                                                              '".(int)$freeId['id']."',
+                                                              '8',
+                                                              NULL,
+                                                              '', 
+                                                              now())");
 
       xtc_db_query("INSERT INTO " . TABLE_CONFIGURATION . " ( configuration_key,
-                                                                    configuration_value,
-                                                                    configuration_group_id,
-                                                                    sort_order,
-                                                                    use_function,
-                                                                    set_function,
-                                                                    date_added)
-                                                                  VALUES ('MODULE_BX_SECURITY_ADMIN_LOGIN_BLOCK_MINUTES',
-                                                                    '60', 
-                                                                    '".(int)$freeId['id']."',
-                                                                    '9',
-                                                                    NULL,
-                                                                    '', 
-                                                                    now())");
+                                                              configuration_value,
+                                                              configuration_group_id,
+                                                              sort_order,
+                                                              use_function,
+                                                              set_function,
+                                                              date_added)
+                                                            VALUES ('MODULE_BX_SECURITY_ADMIN_LOGIN_BLOCK_MINUTES',
+                                                              '60', 
+                                                              '".(int)$freeId['id']."',
+                                                              '9',
+                                                              NULL,
+                                                              '', 
+                                                              now())");
 
       xtc_db_query("INSERT INTO " . TABLE_CONFIGURATION . " ( configuration_key,
-                                                                    configuration_value,
-                                                                    configuration_group_id,
-                                                                    sort_order,
-                                                                    use_function,
-                                                                    set_function,
-                                                                    date_added)
-                                                                  VALUES ('MODULE_BX_SECURITY_MANUAL_RULES_CACHE',
-                                                                    '', 
-                                                                    '".(int)$freeId['id']."',
-                                                                    '10',
-                                                                    NULL,
-                                                                    '', 
-                                                                    now())");
+                                                              configuration_value,
+                                                              configuration_group_id,
+                                                              sort_order,
+                                                              use_function,
+                                                              set_function,
+                                                              date_added)
+                                                            VALUES ('MODULE_BX_SECURITY_MANUAL_RULES_CACHE',
+                                                              '', 
+                                                              '".(int)$freeId['id']."',
+                                                              '10',
+                                                              NULL,
+                                                              '', 
+                                                              now())");
 
       xtc_db_query("CREATE TABLE IF NOT EXISTS msec_blocks (
           block_id INT(11) NOT NULL AUTO_INCREMENT,
@@ -329,6 +333,15 @@
 
     public function remove(): void {
       global $messageStack;
+      if (!$this->bx_can_unpatch_core('xss_secure') || !$this->bx_can_unpatch_core('login_admin')) {
+        return;
+      }
+      if (!$this->bx_unpatch_xss_secure()) {
+        return;
+      }
+      if (!$this->bx_unpatch_login_admin()) {
+        return;
+      }
       xtc_db_query("DELETE FROM " . TABLE_CONFIGURATION . " WHERE configuration_key IN ('" . implode("', '", $this->keys()) . "')");
       xtc_db_query("DELETE FROM " . TABLE_CONFIGURATION . " WHERE configuration_key IN ('" . implode("', '", $this->keys2()) . "')");
       xtc_db_query("DELETE FROM " . TABLE_CONFIGURATION_GROUP . " WHERE configuration_group_title = 'BX Security Monitor'");
@@ -340,9 +353,6 @@
       xtc_db_query("DROP TABLE IF EXISTS `msec_manual_rules`");
 
       xtc_db_query("ALTER TABLE " . TABLE_ADMIN_ACCESS . " DROP COLUMN bx_security_monitor");
-
-      $admin_unpatch_ok = $this->bx_unpatch_login_admin();
-      $xss_unpatch_ok   = $this->bx_unpatch_xss_secure();
 
       if(file_exists(DIR_FS_CATALOG . 'log/msec_whitelist_mirror.log')) {
         unlink(DIR_FS_CATALOG . 'log/msec_whitelist_mirror.log');
@@ -374,7 +384,23 @@
     public function custom(): never {
       global $messageStack;
       $result = true;
-        
+
+      if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+        $messageStack->add_session(MODULE_BX_SECURITY_MONITOR_TEXT_INVALID_REMOVAL_REQUEST, 'error');
+        xtc_redirect(xtc_href_link(FILENAME_MODULE_EXPORT, 'set=system'));
+      }
+      if ($this->check()) {
+        $messageStack->add_session(MODULE_BX_SECURITY_MONITOR_TEXT_UNINSTALL_FIRST, 'error');
+        xtc_redirect(xtc_href_link(FILENAME_MODULE_EXPORT, 'set=system'));
+      }
+      foreach (array('login_admin.php', 'includes/xss_secure.php') as $core_file) {
+        $backup = DIR_FS_CATALOG . $core_file . '.bx-backup';
+        if (file_exists($backup) || is_link($backup) || file_exists($backup . '.meta') || is_link($backup . '.meta')) {
+          $messageStack->add_session(MODULE_BX_SECURITY_MONITOR_TEXT_BACKUP_REMAINS, 'error');
+          xtc_redirect(xtc_href_link(FILENAME_MODULE_EXPORT, 'set=system'));
+        }
+      }
+
       // Dateien definieren
       $dirs_and_files   = array();
       
@@ -382,255 +408,104 @@
       $dirs_and_files[] = DIR_FS_ADMIN . 'images/icons/heading/bx-security-monitor.png';
       $dirs_and_files[] = DIR_FS_ADMIN . 'includes/extra/css/bx_security_monitor.php';
       $dirs_and_files[] = DIR_FS_ADMIN . 'includes/extra/filenames/bx_security_monitor.php';
-      $dirs_and_files[] = DIR_FS_ADMIN . 'includes/extra/functions/bx_security_monitor.php';
       $dirs_and_files[] = DIR_FS_ADMIN . 'includes/extra/javascript/bx_security_monitor.php';
       $dirs_and_files[] = DIR_FS_ADMIN . 'includes/extra/menu/bx_security_monitor.php';
-      $dirs_and_files[] = DIR_FS_CATALOG . 'includes/data/login_admin.original.php';
-      $dirs_and_files[] = DIR_FS_CATALOG . 'includes/data/login_admin.patched.php'; 
-      $dirs_and_files[] = DIR_FS_CATALOG . 'includes/data/xss_secure.original.php';
-      $dirs_and_files[] = DIR_FS_CATALOG . 'includes/data/xss_secure.patched.php';
+      $registry = msec_core_patch_registry();
+      foreach (array('login_admin', 'xss_secure') as $type) {
+        if (empty($registry[$type]) || !is_array($registry[$type])) {
+          error_log('Core patch cleanup: missing registry for ' . $type);
+          $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_REGISTRY_ERROR, 'Core-Patches'), 'error');
+          xtc_redirect(xtc_href_link(FILENAME_MODULE_EXPORT, 'set=system'));
+        }
+        foreach ($registry[$type] as $pair) {
+          foreach (array('original', 'patched') as $key) {
+            if (!is_array($pair) || !isset($pair[$key]) || !is_string($pair[$key])
+                || !preg_match('/\A[a-zA-Z0-9_-][a-zA-Z0-9_.-]*\z/', $pair[$key])) {
+              error_log('Core patch cleanup: invalid reference filename for ' . $type);
+              $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_REGISTRY_ERROR, 'Core-Patches'), 'error');
+              xtc_redirect(xtc_href_link(FILENAME_MODULE_EXPORT, 'set=system'));
+            }
+            $dirs_and_files[] = DIR_FS_CATALOG . 'includes/data/' . $pair[$key];
+          }
+        }
+      }
       $dirs_and_files[] = DIR_FS_CATALOG . 'includes/extra/application_top/application_top_begin/bx_security_bootstrap.php';
       $dirs_and_files[] = DIR_FS_CATALOG . 'includes/extra/application_top/application_top_end/bx_security_session.php';
       $dirs_and_files[] = DIR_FS_CATALOG . 'includes/modules/bx_admin_login_guard.php';
       $dirs_and_files[] = DIR_FS_CATALOG . 'includes/modules/bx_guard.php';
       $dirs_and_files[] = DIR_FS_CATALOG . 'lang/english/extra/admin/bx_security_monitor.php';
-      $dirs_and_files[] = DIR_FS_CATALOG . 'lang/english/modules/system/bx_security_monitor.php';
       $dirs_and_files[] = DIR_FS_CATALOG . 'lang/german/extra/admin/bx_security_monitor.php';
-      $dirs_and_files[] = DIR_FS_CATALOG . 'lang/german/modules/system/bx_security_monitor.php';
 
       // Dateien löschen
-      foreach ($dirs_and_files as $dir_or_file) {
+      foreach (array_unique($dirs_and_files) as $dir_or_file) {
         if (!$this->secureDelete($dir_or_file)) {
           $messageStack->add_session($dir_or_file.MODULE_BX_SECURITY_MONITOR_TEXT_COULD_NOT_BE_DELETED, 'error');
           $result = false;
         }
       }
-        
-      if ($result === true) {
-        $messageStack->add_session(MODULE_BX_SECURITY_MONITOR_TEXT_SUCCESSFULLY_REMOVED, 'success');
-      } else {
-        $messageStack->add_session(MODULE_BX_SECURITY_MONITOR_TEXT_REMOVAL_INCOMPLETE, 'error');
+      if ($result) {
+        foreach (array(
+          DIR_FS_ADMIN . 'includes/extra/functions/bx_security_monitor.php',
+          DIR_FS_CATALOG . 'lang/english/modules/system/bx_security_monitor.php',
+          DIR_FS_CATALOG . 'lang/german/modules/system/bx_security_monitor.php',
+        ) as $file) {
+          if (!$this->secureDelete($file)) {
+            $messageStack->add_session($file.MODULE_BX_SECURITY_MONITOR_TEXT_COULD_NOT_BE_DELETED, 'error');
+            $result = false;
+            break;
+          }
+        }
       }
-        
-      // Datei selbst löschen
-      $this->secureDelete(DIR_FS_ADMIN.'includes/modules/system/bx_security_monitor.php');
+
+      if ($result && !$this->secureDelete(DIR_FS_ADMIN.'includes/modules/system/bx_security_monitor.php')) {
+        $messageStack->add_session(DIR_FS_ADMIN.'includes/modules/system/bx_security_monitor.php'.MODULE_BX_SECURITY_MONITOR_TEXT_COULD_NOT_BE_DELETED, 'error');
+        $result = false;
+      }
+      $messageStack->add_session(
+        $result ? MODULE_BX_SECURITY_MONITOR_TEXT_SUCCESSFULLY_REMOVED : MODULE_BX_SECURITY_MONITOR_TEXT_REMOVAL_INCOMPLETE,
+        $result ? 'success' : 'error'
+      );
 
       xtc_redirect(xtc_href_link(FILENAME_MODULE_EXPORT, 'set=system'));
     }
 
     private function secureDelete(string $path): bool {
-      // 1. Existiert der Pfad überhaupt?
+      if (is_link($path)) {
+        return unlink($path);
+      }
       if (!file_exists($path)) {
         return true;
       }
-
-      // --- SICHERHEITS-CHECK ---
-      // Holt den echten, bereinigten Pfad (löst relative Teile auf)
-      $realPath  = realpath($path);
-      $adminRoot = realpath(DIR_FS_ADMIN);
-
-      // Sicherheitsregel A: Pfad darf nicht leer sein
-      if (empty($realPath) || empty($adminRoot)) {
-        return false;
-      }
-
-      // Sicherheitsregel B: Wenn der Pfad EXAKT dein Admin-Hauptordner 
-      // oder das Hauptverzeichnis (/) ist -> SOFORT ABBRECHEN!
-      if ($realPath === $adminRoot || $realPath === DIRECTORY_SEPARATOR) {
-        return false; 
-      }
-      // -----------------------------------
-
-      if (!is_writable($realPath)) {
-        return false;
-      }
-
-      // Wenn es eine Datei oder ein Symlink ist -> nur diese löschen und beenden!
-      if (!is_dir($realPath) || is_link($realPath)) {
-        return unlink($realPath);
-      }
-
-      // Nur wenn es ein Ordner ist, wird tiefer gegangen
-      try {
-        $iterator = new RecursiveIteratorIterator(
-          new RecursiveDirectoryIterator($realPath, FilesystemIterator::SKIP_DOTS),
-          RecursiveIteratorIterator::CHILD_FIRST
-        );
-
-        foreach ($iterator as $item) {
-          $itemPath = $item->getRealPath();
-
-          if (!is_writable($itemPath)) {
-            return false;
-          }
-          
-          if ($item->isDir() && !$item->isLink()) {
-            if (!rmdir($itemPath)) {
-              return false;
-            }
-          } else {
-            if (!unlink($itemPath)) {
-              return false;
-            }
-          }
-        }
-      } catch (UnexpectedValueException $e) {
-        return false;
-      }
-
-      return rmdir($realPath);
+      return is_file($path) && unlink($path);
     }
 
-    private function bx_patch_login_admin(): bool {
-      global $messageStack;
+    public function bx_patch_login_admin(): bool {
+      return $this->bx_patch_core('login_admin');
+    }
 
-      $target       = DIR_FS_CATALOG . 'login_admin.php';
-      $backup       = DIR_FS_CATALOG . 'login_admin.php.bx-backup';
-      $original_ref = DIR_FS_CATALOG . 'includes/data/login_admin.original.php';
-      $patched_src  = DIR_FS_CATALOG . 'includes/data/login_admin.patched.php';
-
-      // Bereits installiert? -> kein Fehler, Ziel-Zustand ist erreicht
-      if (file_exists($backup)) {
-        $messageStack->add_session('Core-Patch für login_admin.php ist bereits installiert.', 'info');
-        return true;
-      }
-
-      // Referenzdateien vorhanden?
-      if (!file_exists($original_ref) || !file_exists($patched_src)) {
-        $messageStack->add_session('Referenzdateien für den Login-Patch fehlen im Modulverzeichnis.', 'error');
-        return false;
-      }
-
-      // Rechte prüfen
-      if (!is_writable($target) || !is_writable(dirname($target))) {
-        $messageStack->add_session('Keine Schreibrechte auf ' . $target, 'error');
-        return false;
-      }
-
-      // Ist die aktuelle Datei noch die erwartete Original-Version?
-      // Falls nicht: Core wurde zwischenzeitlich aktualisiert -> abbrechen statt blind patchen.
-      if (hash_file('sha256', $target) !== hash_file('sha256', $original_ref)) {
-        $messageStack->add_session(
-          'login_admin.php weicht von der erwarteten Original-Version ab. ' .
-          'Vermutlich wurde der Shop-Core zwischenzeitlich aktualisiert. ' .
-          'Bitte den Patch manuell prüfen und ggf. anpassen, bevor du installierst.',
-          'error'
-        );
-        return false;
-      }
-
-      // Backup erstellen
-      if (!copy($target, $backup)) {
-        $messageStack->add_session('Backup von login_admin.php konnte nicht erstellt werden.', 'error');
-        return false;
-      }
-
-      // Backup verifizieren
-      if (hash_file('sha256', $backup) !== hash_file('sha256', $original_ref)) {
-        unlink($backup);
-        $messageStack->add_session('Backup-Verifikation fehlgeschlagen. Installation des Patches abgebrochen.', 'error');
-        return false;
-      }
-
-      // Metadaten sichern (u.a. für spätere Update-Erkennung im Admin-Panel)
-      $meta_written = file_put_contents($backup . '.meta', json_encode([
-          'original_hash'  => hash_file('sha256', $original_ref),
-          'patched_hash'   => hash_file('sha256', $patched_src),
-          'installed_at'   => date('c'),
-          'module_version' => defined('MEINMODUL_VERSION') ? MEINMODUL_VERSION : null,
-      ], JSON_PRETTY_PRINT));
-
-      if ($meta_written === false) {
-        // Backup zurückrollen, damit kein halb-installierter Zustand zurückbleibt
-        unlink($backup);
-        $messageStack->add_session('Metadaten für den Login-Patch konnten nicht geschrieben werden.', 'error');
-        return false;
-      }
-
-      // Atomar einspielen: erst als .tmp kopieren, dann umbenennen
-      $tmp = $target . '.tmp';
-
-      if (!copy($patched_src, $tmp)) {
-        unlink($backup);
-        unlink($backup . '.meta');
-        $messageStack->add_session('Patched-Datei konnte nicht vorbereitet werden.', 'error');
-        return false;
-      }
-
-      if (!rename($tmp, $target)) {
-        unlink($tmp);
-        unlink($backup);
-        unlink($backup . '.meta');
-        $messageStack->add_session('Patch konnte nicht aktiviert werden.', 'error');
-        return false;
-      }
-
-      $messageStack->add_session('Core-Patch für login_admin.php wurde erfolgreich installiert.', 'success');
-      return true;
+    public function bx_patch_xss_secure(): bool {
+      return $this->bx_patch_core('xss_secure');
     }
 
     private function bx_unpatch_login_admin(): bool {
-      global $messageStack;
-
-      $target      = DIR_FS_CATALOG . 'login_admin.php';
-      $backup      = DIR_FS_CATALOG . 'login_admin.php.bx-backup';
-      $patched_src = DIR_FS_CATALOG . 'includes/data/login_admin.patched.php';
-
-      if (!file_exists($backup)) {
-        // Kein Backup vorhanden -> war nie gepatcht (oder schon zurückgesetzt) -> kein Fehler
-        $messageStack->add_session('Kein aktiver Core-Patch für login_admin.php gefunden.', 'info');
-        return true;
-      }
-
-      if (!file_exists($patched_src)) {
-        // Ohne Referenz kann nicht sicher geprüft werden, ob die aktuelle Datei
-        // wirklich unsere gepatchte Version ist -> lieber nichts anfassen
-        $messageStack->add_session(
-          'Referenzdatei für den Login-Patch fehlt. Automatisches Wiederherstellen abgebrochen. ' .
-          'Backup liegt weiterhin unter: ' . $backup, 'error'
-        );
-        return false;
-      }
-
-      // Ist die aktuelle Datei noch GENAU unsere gepatchte Version?
-      if (hash_file('sha256', $target) !== hash_file('sha256', $patched_src)) {
-        $messageStack->add_session(
-          'login_admin.php wurde seit der Installation verändert. ' .
-          'Automatisches Wiederherstellen wurde abgebrochen, um Datenverlust zu vermeiden. ' .
-          'Dein Original-Backup liegt unverändert unter: ' . $backup, 'error'
-        );
-        return false;
-      }
-
-      if (!rename($backup, $target)) {
-        $messageStack->add_session('Original von login_admin.php konnte nicht wiederhergestellt werden.', 'error');
-        return false;
-      }
-
-      if (file_exists($backup . '.meta')) {
-        unlink($backup . '.meta');
-      }
-      $messageStack->add_session('Core-Patch für login_admin.php wurde erfolgreich zurückgesetzt.', 'success');
-      return true;
+      return $this->bx_unpatch_core('login_admin');
     }
 
-    private function bx_patch_xss_secure(): bool {
+    private function bx_unpatch_xss_secure(): bool {
+      return $this->bx_unpatch_core('xss_secure');
+    }
+
+    private function bx_patch_core(string $type): bool {
       global $messageStack;
 
-      $target       = DIR_FS_CATALOG . 'includes/xss_secure.php';
-      $backup       = DIR_FS_CATALOG . 'includes/xss_secure.php.bx-backup';
-      $original_ref = DIR_FS_CATALOG . 'includes/data/xss_secure.original.php';
-      $patched_src  = DIR_FS_CATALOG . 'includes/data/xss_secure.patched.php';
-
-      // Bereits installiert? -> kein Fehler, Ziel-Zustand ist erreicht
-      if (file_exists($backup)) {
-        $messageStack->add_session('Core-Patch für xss_secure.php ist bereits installiert.', 'info');
-        return true;
-      }
-
-      // Referenzdateien vorhanden?
-      if (!file_exists($original_ref) || !file_exists($patched_src)) {
-        $messageStack->add_session('Referenzdateien für den xss_secure-Patch fehlen im Modulverzeichnis.', 'error');
+      $file = $type === 'login_admin' ? 'login_admin.php' : 'includes/xss_secure.php';
+      $target = DIR_FS_CATALOG . $file;
+      $backup = $target . '.bx-backup';
+      try {
+        $pairs = msec_core_patch_pairs($type);
+      } catch (RuntimeException $e) {
+        error_log('Core patch: ' . $e->getMessage());
+        $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_REGISTRY_ERROR, $file), 'error');
         return false;
       }
 
@@ -640,43 +515,129 @@
         return false;
       }
 
-      // Ist die aktuelle Datei noch die erwartete Original-Version?
-      // Falls nicht: Core wurde zwischenzeitlich aktualisiert -> abbrechen statt blind patchen.
-      if (hash_file('sha256', $target) !== hash_file('sha256', $original_ref)) {
-        $messageStack->add_session(
-          'xss_secure.php weicht von der erwarteten Original-Version ab. ' .
-          'Vermutlich wurde der Shop-Core zwischenzeitlich aktualisiert. ' .
-          'Bitte den Patch manuell prüfen und ggf. anpassen, bevor du installierst.',
-          'error'
-        );
+      $target_hash = hash_file('sha256', $target);
+      if ($target_hash === false) {
+        $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_HASH_FAILED, $file), 'error');
         return false;
       }
 
+      if (file_exists($backup)) {
+        $meta_file = $backup . '.meta';
+        $meta = is_file($meta_file) ? json_decode(file_get_contents($meta_file), true) : null;
+        $backup_hash = hash_file('sha256', $backup);
+        if (!is_array($meta) || empty($meta['original_hash']) || empty($meta['patched_hash'])
+            || $backup_hash === false
+            || $backup_hash !== $meta['original_hash']) {
+          $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_INVALID_BACKUP, $file), 'error');
+          return false;
+        }
+
+        if ($target_hash === $meta['patched_hash'] && isset($pairs[$backup_hash])
+            && $target_hash === $pairs[$backup_hash]['patched_hash']) {
+          $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_ALREADY_INSTALLED, $file), 'info');
+          return true;
+        }
+
+        if ($target_hash === $meta['patched_hash'] && isset($pairs[$backup_hash])) {
+          if (!$this->bx_unpatch_core($type)) {
+            return false;
+          }
+          return $this->bx_patch_core($type);
+        }
+
+        try {
+          $updated_pair = msec_updated_patch_pair($pairs, $backup_hash, $meta['patched_hash'], $target_hash);
+        } catch (RuntimeException $e) {
+          error_log('Core patch: ' . $e->getMessage());
+          $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_REGISTRY_ERROR, $file), 'error');
+          return false;
+        }
+        if ($updated_pair !== null) {
+          if (!$this->bx_reconcile_updated_patch($file, $updated_pair, $target_hash, $backup_hash, $meta['patched_hash'])) {
+            return false;
+          }
+          return $this->bx_patch_core($type);
+        }
+
+        if (!isset($pairs[$target_hash])) {
+          $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_UPDATE_REQUIRED, $file), 'error');
+          return false;
+        }
+
+        // Preserve the previous core backup before installing over the updated core.
+        $previous_backup = $backup . '.previous';
+        $previous_meta = $meta_file . '.previous';
+        if (file_exists($previous_backup) || file_exists($previous_meta)) {
+          $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_ARCHIVE_EXISTS, $file), 'error');
+          return false;
+        }
+        if (!rename($backup, $previous_backup)) {
+          $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_ARCHIVE_FAILED, $file), 'error');
+          return false;
+        }
+        if (!rename($meta_file, $previous_meta)) {
+          if (!rename($previous_backup, $backup)) {
+            $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_ARCHIVE_RESTORE_FAILED, $file), 'error');
+          }
+          $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_ARCHIVE_FAILED, $file), 'error');
+          return false;
+        }
+        if ($this->bx_patch_core($type)) {
+          return true;
+        }
+        if (file_exists($backup) || file_exists($meta_file)
+            || !rename($previous_backup, $backup) || !rename($previous_meta, $meta_file)) {
+          $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_ARCHIVE_RESTORE_FAILED, $file), 'error');
+        }
+        return false;
+      }
+
+      if (file_exists($backup . '.meta')) {
+        $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_INVALID_BACKUP, $file), 'error');
+        return false;
+      }
+
+      // Ist die aktuelle Datei noch die erwartete Original-Version?
+      // Falls nicht: Core wurde zwischenzeitlich aktualisiert -> abbrechen statt blind patchen.
+      if (!isset($pairs[$target_hash])) {
+        $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_UPDATE_REQUIRED, $file), 'error');
+        return false;
+      }
+      $pair = $pairs[$target_hash];
+      $original_hash = $target_hash;
+      $patched_hash = $pair['patched_hash'];
+      $patched_src = $pair['patched'];
+
       // Backup erstellen
       if (!copy($target, $backup)) {
-        $messageStack->add_session('Backup von xss_secure.php konnte nicht erstellt werden.', 'error');
+        $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_BACKUP_FAILED, $file), 'error');
         return false;
       }
 
       // Backup verifizieren
-      if (hash_file('sha256', $backup) !== hash_file('sha256', $original_ref)) {
+      if (hash_file('sha256', $backup) !== $original_hash) {
         unlink($backup);
-        $messageStack->add_session('Backup-Verifikation fehlgeschlagen. Installation des xss_secure-Patches abgebrochen.', 'error');
+        $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_HASH_FAILED, $file), 'error');
         return false;
       }
 
       // Metadaten sichern (u.a. für spätere Update-Erkennung im Admin-Panel)
-      $meta_written = file_put_contents($backup . '.meta', json_encode([
-          'original_hash'  => hash_file('sha256', $original_ref),
-          'patched_hash'   => hash_file('sha256', $patched_src),
+      $meta_content = json_encode([
+          'original_hash'  => $original_hash,
+          'patched_hash'   => $patched_hash,
+          'reference_version' => $pair['version'],
           'installed_at'   => date('c'),
-          'module_version' => defined('MEINMODUL_VERSION') ? MEINMODUL_VERSION : null,
-      ], JSON_PRETTY_PRINT));
+          'module_version' => $this->version,
+      ], JSON_PRETTY_PRINT);
+      $meta_written = file_put_contents($backup . '.meta', $meta_content);
 
-      if ($meta_written === false) {
+      if ($meta_written !== strlen($meta_content)) {
         // Backup zurückrollen, damit kein halb-installierter Zustand zurückbleibt
         unlink($backup);
-        $messageStack->add_session('Metadaten für den xss_secure-Patch konnten nicht geschrieben werden.', 'error');
+        if (file_exists($backup . '.meta')) {
+          unlink($backup . '.meta');
+        }
+        $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_META_WRITE_FAILED, $file), 'error');
         return false;
       }
 
@@ -690,6 +651,14 @@
         return false;
       }
 
+      if (hash_file('sha256', $tmp) !== $patched_hash) {
+        unlink($tmp);
+        unlink($backup);
+        unlink($backup . '.meta');
+        $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_HASH_FAILED, $file), 'error');
+        return false;
+      }
+
       if (!rename($tmp, $target)) {
         unlink($tmp);
         unlink($backup);
@@ -698,48 +667,163 @@
         return false;
       }
 
-      $messageStack->add_session('Core-Patch für xss_secure.php wurde erfolgreich installiert.', 'success');
+      $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_INSTALLED, $file), 'success');
       return true;
     }
 
-    private function bx_unpatch_xss_secure(): bool {
+    private function bx_reconcile_updated_patch(string $file, array $pair, string $target_hash, string $backup_hash, string $old_patch_hash): bool {
       global $messageStack;
 
-      $target      = DIR_FS_CATALOG . 'includes/xss_secure.php';
-      $backup      = DIR_FS_CATALOG . 'includes/xss_secure.php.bx-backup';
-      $patched_src = DIR_FS_CATALOG . 'includes/data/xss_secure.patched.php';
-
-      if (!file_exists($backup)) {
-        $messageStack->add_session('Kein aktiver Core-Patch für xss_secure.php gefunden.', 'info');
-        return true;
+      $target = DIR_FS_CATALOG . $file;
+      $backup = $target . '.bx-backup';
+      $meta_file = $backup . '.meta';
+      $previous_backup = $backup . '.previous';
+      $previous_meta = $meta_file . '.previous';
+      if (file_exists($previous_backup) || file_exists($previous_meta)) {
+        $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_ARCHIVE_EXISTS, $file), 'error');
+        return false;
       }
-
-      if (!file_exists($patched_src)) {
-        $messageStack->add_session(
-          'Referenzdatei für den xss_secure-Patch fehlt. Automatisches Wiederherstellen abgebrochen. ' .
-          'Backup liegt weiterhin unter: ' . $backup, 'error'
-        );
+      if (!rename($backup, $previous_backup)) {
+        $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_ARCHIVE_FAILED, $file), 'error');
+        return false;
+      }
+      if (!rename($meta_file, $previous_meta)) {
+        if (!rename($previous_backup, $backup)) {
+          $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_ARCHIVE_RESTORE_FAILED, $file), 'error');
+        }
+        $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_ARCHIVE_FAILED, $file), 'error');
         return false;
       }
 
-      if (hash_file('sha256', $target) !== hash_file('sha256', $patched_src)) {
+      $meta_content = json_encode([
+        'original_hash' => $pair['original_hash'],
+        'patched_hash' => $target_hash,
+        'reference_version' => $pair['version'],
+        'installed_at' => date('c'),
+        'module_version' => $this->version,
+      ], JSON_PRETTY_PRINT);
+      $old_meta = json_decode(file_get_contents($previous_meta), true);
+      $ok = hash_file('sha256', $previous_backup) === $backup_hash
+          && is_array($old_meta)
+          && ($old_meta['original_hash'] ?? null) === $backup_hash
+          && ($old_meta['patched_hash'] ?? null) === $old_patch_hash
+          && copy($pair['original'], $backup)
+          && hash_file('sha256', $backup) === $pair['original_hash']
+          && file_put_contents($meta_file, $meta_content) === strlen($meta_content)
+          && hash_file('sha256', $target) === $target_hash;
+      if ($ok) {
+        return true;
+      }
+
+      $cleaned = (!file_exists($backup) || unlink($backup));
+      $cleaned = (!file_exists($meta_file) || unlink($meta_file)) && $cleaned;
+      if (!$cleaned || !rename($previous_backup, $backup) || !rename($previous_meta, $meta_file)) {
+        $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_ARCHIVE_RESTORE_FAILED, $file), 'error');
+      }
+      $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_HASH_FAILED, $file), 'error');
+      return false;
+    }
+
+    private function bx_can_unpatch_core(string $type): bool {
+      global $messageStack;
+
+      $file        = $type === 'login_admin' ? 'login_admin.php' : 'includes/xss_secure.php';
+      $target      = DIR_FS_CATALOG . $file;
+      $backup      = $target . '.bx-backup';
+      $meta_file   = $backup . '.meta';
+
+      if (!file_exists($backup)) {
+        if (file_exists($meta_file)) {
+          $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_INVALID_BACKUP, $file), 'error');
+          return false;
+        }
+        return true;
+      }
+
+      $meta = is_file($meta_file) ? json_decode(file_get_contents($meta_file), true) : null;
+      if (!is_array($meta) || empty($meta['original_hash']) || empty($meta['patched_hash'])
+          || hash_file('sha256', $backup) !== $meta['original_hash']) {
+        $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_INVALID_BACKUP, $file), 'error');
+        return false;
+      }
+
+      $target_hash = is_file($target) ? hash_file('sha256', $target) : false;
+      if ($target_hash !== false && $target_hash !== $meta['patched_hash']) {
+        try {
+          $updated_pair = msec_updated_patch_pair(msec_core_patch_pairs($type), $meta['original_hash'], $meta['patched_hash'], $target_hash);
+        } catch (RuntimeException $e) {
+          error_log('Core patch: ' . $e->getMessage());
+          $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_REGISTRY_ERROR, $file), 'error');
+          return false;
+        }
+        if ($updated_pair !== null) {
+          if (file_exists($backup . '.previous') || file_exists($meta_file . '.previous')) {
+            $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_ARCHIVE_EXISTS, $file), 'error');
+            return false;
+          }
+          return true;
+        }
+      }
+      if ($target_hash === false || $target_hash !== $meta['patched_hash']) {
         $messageStack->add_session(
-          'xss_secure.php wurde seit der Installation verändert. ' .
+          $file . ' wurde seit der Installation verändert. ' .
           'Automatisches Wiederherstellen wurde abgebrochen, um Datenverlust zu vermeiden. ' .
           'Dein Original-Backup liegt unverändert unter: ' . $backup, 'error'
         );
         return false;
       }
+      return true;
+    }
+
+    private function bx_unpatch_core(string $type): bool {
+      global $messageStack;
+
+      $file = $type === 'login_admin' ? 'login_admin.php' : 'includes/xss_secure.php';
+      $target = DIR_FS_CATALOG . $file;
+      $backup = $target . '.bx-backup';
+      $meta_file = $backup . '.meta';
+      if (!$this->bx_can_unpatch_core($type)) {
+        return false;
+      }
+      if (!file_exists($backup)) {
+        $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_NOT_INSTALLED, $file), 'info');
+        return true;
+      }
+
+      $meta = json_decode(file_get_contents($meta_file), true);
+      $target_hash = hash_file('sha256', $target);
+      if (!is_array($meta) || empty($meta['original_hash']) || empty($meta['patched_hash']) || $target_hash === false) {
+        $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_HASH_FAILED, $file), 'error');
+        return false;
+      }
+      if ($target_hash !== $meta['patched_hash']) {
+        try {
+          $pair = msec_updated_patch_pair(msec_core_patch_pairs($type), $meta['original_hash'], $meta['patched_hash'], $target_hash);
+        } catch (RuntimeException $e) {
+          error_log('Core patch: ' . $e->getMessage());
+          $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_REGISTRY_ERROR, $file), 'error');
+          return false;
+        }
+        if ($pair === null) {
+          $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_UPDATE_REQUIRED, $file), 'error');
+          return false;
+        }
+        if (!$this->bx_reconcile_updated_patch($file, $pair, $target_hash, $meta['original_hash'], $meta['patched_hash'])
+            || !$this->bx_can_unpatch_core($type)) {
+          return false;
+        }
+      }
 
       if (!rename($backup, $target)) {
-        $messageStack->add_session('Original von xss_secure.php konnte nicht wiederhergestellt werden.', 'error');
+        $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_RESTORE_FAILED, $file), 'error');
         return false;
       }
 
-      if (file_exists($backup . '.meta')) {
-        unlink($backup . '.meta');
+      if (file_exists($meta_file) && !unlink($meta_file)) {
+        $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_META_REMOVE_FAILED, $file), 'error');
+        return false;
       }
-      $messageStack->add_session('Core-Patch für xss_secure.php wurde erfolgreich zurückgesetzt.', 'success');
+      $messageStack->add_session(sprintf(BX_SECURITY_MONITOR_CORE_PATCH_RESTORED, $file), 'success');
       return true;
     }
     

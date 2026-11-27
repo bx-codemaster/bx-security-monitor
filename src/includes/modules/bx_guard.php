@@ -207,6 +207,8 @@ if (!function_exists('msec_score_request')) {
         }
 
         $path_patterns = array(
+            // Honeypot-Pfad mit voller Punktzahl
+            array('/system-check-internal-link', 100, 'Honeypot ausgelöst', 'Bot-Falle'),
             array('/.git', 25, 'Git-Verzeichnis', 'Quellcode-/Konfigurationssuche'),
             array('/.env', 25, 'Umgebungsdatei', 'Quellcode-/Konfigurationssuche'),
             array('/.svn', 25, 'SVN-Verzeichnis', 'Quellcode-/Konfigurationssuche'),

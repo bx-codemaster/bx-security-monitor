@@ -3,7 +3,6 @@
 if (defined('MODULE_BX_SECURITY_MONITOR_STATUS') && MODULE_BX_SECURITY_MONITOR_STATUS === 'True') {
     $guard       = DIR_FS_CATALOG . 'includes/modules/bx_guard.php';
     $login_guard = DIR_FS_CATALOG . 'includes/modules/bx_admin_login_guard.php';
-
     if (is_file($guard)) {
         require_once($guard);
     }
@@ -11,4 +10,3 @@ if (defined('MODULE_BX_SECURITY_MONITOR_STATUS') && MODULE_BX_SECURITY_MONITOR_S
         require_once($login_guard);
     }
 }
-?>

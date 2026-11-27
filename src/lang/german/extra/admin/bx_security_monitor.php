@@ -159,6 +159,24 @@ define('BX_SECURITY_MONITOR_XSS_SECURE_PHP_META_MISSING', 'Backup-Metadaten für
 define('BX_SECURITY_MONITOR_XSS_SECURE_PHP_META_INVALID', 'Backup-Metadaten für <code>xss_secure.php</code> sind beschädigt. Der Patch-Status kann nicht eindeutig geprüft werden.');
 define('BX_SECURITY_MONITOR_XSS_SECURE_PHP_NOT_INSTALLED', 'Der Patch <code>xss_secure.php</code> ist nicht installiert.');
 define('BX_SECURITY_MONITOR_XSS_SECURE_PHP_OK', 'Der Patch-Status von <code>xss_secure.php</code> ist ok.');
+define('BX_SECURITY_MONITOR_XSS_PATCH_APPLY', 'XSS-Patch installieren / aktualisieren');
+define('BX_SECURITY_MONITOR_LOGIN_PATCH_APPLY', 'Login-Patch installieren / aktualisieren');
+define('BX_SECURITY_MONITOR_CORE_PATCH_INVALID_REQUEST', 'Core-Patches können nur über das Formular installiert werden.');
+define('BX_SECURITY_MONITOR_CORE_PATCH_REGISTRY_ERROR', 'Core-Patch für %s abgebrochen: Referenzliste oder Referenzdateien sind ungültig. Details stehen im Fehlerprotokoll.');
+define('BX_SECURITY_MONITOR_CORE_PATCH_INVALID_BACKUP', 'Core-Patch für %s abgebrochen: Backup oder Metadaten fehlen oder sind ungültig.');
+define('BX_SECURITY_MONITOR_CORE_PATCH_ALREADY_INSTALLED', 'Der aktuelle Core-Patch für %s ist bereits installiert.');
+define('BX_SECURITY_MONITOR_CORE_PATCH_UPDATE_REQUIRED', 'Core-Patch für %s abgebrochen: Die Datei entspricht keiner unterstützten Originalversion bzw. keinem aktualisierbaren Patch. Bitte manuell prüfen.');
+define('BX_SECURITY_MONITOR_CORE_PATCH_ARCHIVE_EXISTS', 'Core-Patch für %s abgebrochen: Ein früheres Backup-Archiv existiert bereits. Bitte prüfen und separat sichern.');
+define('BX_SECURITY_MONITOR_CORE_PATCH_ARCHIVE_FAILED', 'Das frühere Backup von %s konnte nicht archiviert werden.');
+define('BX_SECURITY_MONITOR_CORE_PATCH_ARCHIVE_RESTORE_FAILED', 'Das frühere Backup von %s konnte nicht vollständig zurückgelegt werden. Bitte die .previous-Dateien manuell prüfen.');
+define('BX_SECURITY_MONITOR_CORE_PATCH_HASH_FAILED', 'Core-Patch für %s abgebrochen: Prüfsummen konnten nicht ermittelt oder verifiziert werden.');
+define('BX_SECURITY_MONITOR_CORE_PATCH_BACKUP_FAILED', 'Das Backup von %s konnte nicht erstellt werden.');
+define('BX_SECURITY_MONITOR_CORE_PATCH_META_WRITE_FAILED', 'Metadaten für den Core-Patch von %s konnten nicht geschrieben werden.');
+define('BX_SECURITY_MONITOR_CORE_PATCH_META_REMOVE_FAILED', '%s wurde wiederhergestellt, aber die Backup-Metadaten konnten nicht entfernt werden.');
+define('BX_SECURITY_MONITOR_CORE_PATCH_INSTALLED', 'Der Core-Patch für %s wurde installiert.');
+define('BX_SECURITY_MONITOR_CORE_PATCH_NOT_INSTALLED', 'Kein aktiver Core-Patch für %s gefunden.');
+define('BX_SECURITY_MONITOR_CORE_PATCH_RESTORE_FAILED', 'Das Original von %s konnte nicht wiederhergestellt werden.');
+define('BX_SECURITY_MONITOR_CORE_PATCH_RESTORED', 'Der Core-Patch für %s wurde zurückgesetzt.');
 
 define('BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_STATUS_UNKNOWN', 'Der Patch-Status von <code>login_admin.php</code> konnte nicht geprüft werden.');
 define('BX_SECURITY_MONITOR_XSS_SECURE_PHP_STATUS_UNKNOWN', 'Der Patch-Status von <code>xss_secure.php</code> konnte nicht geprüft werden.');

@@ -52,12 +52,85 @@ function msec_admin_rebuild_rule_cache() {
     xtc_db_query("UPDATE " . TABLE_CONFIGURATION . " SET configuration_value = '" . xtc_db_prepare_input($cache) . "', last_modified = NOW() WHERE configuration_key = 'MODULE_BX_SECURITY_MANUAL_RULES_CACHE'");
 }
 
-function msec_check_patch_status(string $target, string $backup): string {
+function msec_core_patch_registry(): array {
+  return array(
+    'login_admin' => array(
+      'modified-3.3.0' => array(
+        'original' => 'login_admin.original.php',
+        'patched' => 'login_admin.patched.php',
+      ),
+    ),
+    'xss_secure' => array(
+      'modified-3.3.0-security-update' => array(
+        'original' => 'xss_secure.original.php',
+        'patched' => 'xss_secure.patched.php',
+      ),'modified-3.3.0-beforesecurity-update' => array(
+        'original' => 'xss_before_secure.original.php',
+        'patched' => 'xss_before_secure.patched.php',
+      ),
+    ),
+  );
+}
+
+function msec_core_patch_pairs(string $type): array {
+  return msec_validate_core_patch_pairs($type, msec_core_patch_registry());
+}
+
+function msec_updated_patch_pair(array $pairs, string $backup_hash, string $old_patch_hash, string $target_hash): ?array {
+  if (!isset($pairs[$backup_hash]) || $pairs[$backup_hash]['patched_hash'] !== $old_patch_hash) {
+    return null;
+  }
+  $match = null;
+  foreach ($pairs as $original_hash => $pair) {
+    if ($pair['patched_hash'] === $target_hash && $original_hash !== $backup_hash) {
+      if ($match !== null) {
+        throw new RuntimeException('Ambiguous updated core patch');
+      }
+      $pair['original_hash'] = $original_hash;
+      $match = $pair;
+    }
+  }
+  return $match;
+}
+
+function msec_validate_core_patch_pairs(string $type, array $versions): array {
+  $directory = DIR_FS_CATALOG . 'includes/data/';
+  if (!is_array($versions) || empty($versions[$type]) || !is_array($versions[$type])) {
+    throw new RuntimeException('Core patch versions are missing for ' . $type);
+  }
+
+  $pairs = array();
+  foreach ($versions[$type] as $version => $pair) {
+    if (!is_string($version) || $version === '' || !is_array($pair)
+        || !isset($pair['original'], $pair['patched'])
+        || !is_string($pair['original']) || !is_string($pair['patched'])
+        || strpbrk($pair['original'], '/\\') !== false || strpbrk($pair['patched'], '/\\') !== false
+        || !is_file($directory . $pair['original']) || !is_file($directory . $pair['patched'])) {
+      throw new RuntimeException('Invalid core patch pair for ' . $type . ': ' . $version);
+    }
+    $original = $directory . $pair['original'];
+    $patched = $directory . $pair['patched'];
+    $original_hash = hash_file('sha256', $original);
+    $patched_hash = hash_file('sha256', $patched);
+    if ($original_hash === false || $patched_hash === false || isset($pairs[$original_hash])) {
+      throw new RuntimeException('Unreadable or ambiguous core patch pair for ' . $type . ': ' . $version);
+    }
+    $pairs[$original_hash] = array(
+      'version' => $version,
+      'original' => $original,
+      'patched' => $patched,
+      'patched_hash' => $patched_hash,
+    );
+  }
+  return $pairs;
+}
+
+function msec_check_patch_status(string $target, string $backup, ?string $patch_type = null): string {
   $meta_file = $backup . '.meta';
 
   // Kein Backup -> Patch wurde nie installiert (oder sauber zurückgesetzt)
   if (!file_exists($backup)) {
-    return 'not_installed';
+    return file_exists($meta_file) ? 'meta_invalid' : 'not_installed';
   }
 
   if (!file_exists($meta_file)) {
@@ -77,7 +150,22 @@ function msec_check_patch_status(string $target, string $backup): string {
 
   $current_hash = hash_file('sha256', $target);
 
-  if ($current_hash === $meta['patched_hash']) {
+  if ($current_hash === $meta['patched_hash'] && $patch_type !== null) {
+    try {
+      $pairs = msec_core_patch_pairs($patch_type);
+    } catch (RuntimeException $e) {
+      error_log('Core patch status: ' . $e->getMessage());
+      return 'unknown';
+    }
+    $backup_hash = hash_file('sha256', $backup);
+    if ($backup_hash === false || empty($meta['original_hash'])
+        || $backup_hash !== $meta['original_hash']
+        || !isset($pairs[$backup_hash])
+        || $current_hash !== $pairs[$backup_hash]['patched_hash']) {
+      return 'mismatch';
+    }
+  }
+  if ($current_hash !== false && $current_hash === $meta['patched_hash']) {
     return 'ok';
   }
 

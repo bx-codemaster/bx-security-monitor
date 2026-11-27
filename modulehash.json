@@ -3,27 +3,28 @@
     "scopes": {
         "shop-root": {
             "hashes": {
-                "/admin/bx_security_monitor.php": "ecef77b37e32466e161b2db68fd02feb",
+                "/admin/bx_security_monitor.php": "7382b4fe558d160889fdbca76552a933",
                 "/admin/images/icons/heading/bx-security-monitor.png": "643db82223a52660d128e5a15b1c11f5",
-                "/admin/includes/extra/css/bx_modules.php": "4a525e7fd9c7c0579abb462b54c316eb",
-                "/admin/includes/extra/css/bx_security_monitor.php": "ab13e0dcb78989bc09562d44df6bbf78",
+                "/admin/includes/extra/css/bx_security_monitor.php": "7728d3d01212e9ab3f87bb30ecd6d1c1",
                 "/admin/includes/extra/filenames/bx_security_monitor.php": "6012da6f477c0cc521fa7aabaca8c2c3",
-                "/admin/includes/extra/functions/bx_security_monitor.php": "81ea609edd7912812e20dbc352643a3a",
+                "/admin/includes/extra/functions/bx_security_monitor.php": "c6756ff7e71be3f6aca33a46271c5a4e",
                 "/admin/includes/extra/javascript/bx_security_monitor.php": "00cb858617d2fa7c4d9226befd112df1",
                 "/admin/includes/extra/menu/bx_security_monitor.php": "c71b090cae01d5bf076d4af4895a7572",
-                "/admin/includes/modules/system/bx_security_monitor.php": "df4f70ffdfc4b620b53e4f1acf9bcc43",
+                "/admin/includes/modules/system/bx_security_monitor.php": "c9099da8e3e07483de2565665ccdcf5c",
                 "/includes/data/login_admin.original.php": "b92d445ee7422aa37f267565644cb2e7",
                 "/includes/data/login_admin.patched.php": "06bb0ceb8c0943a56bc8892b83439524",
-                "/includes/data/xss_secure.original.php": "f076282d592d74d44fa01659c4ca00ef",
-                "/includes/data/xss_secure.patched.php": "0291e8b3b699164eeb83f31c79766e5c",
-                "/includes/extra/application_top/application_top_begin/bx_security_bootstrap.php": "19ac8d01b151c4430162acb73147b447",
-                "/includes/extra/application_top/application_top_end/bx_security_session.php": "b19804c4c2e3ca5f29863d2e0f71605d",
-                "/includes/modules/bx_admin_login_guard.php": "b2fceeb770cb742bed1dae065d913b65",
-                "/includes/modules/bx_guard.php": "ce4e8433ebbd8382882ae25f15b08308",
-                "/lang/english/extra/admin/bx_security_monitor.php": "f58e62bb3d39f33aa3b191b7d539edcf",
-                "/lang/english/modules/system/bx_security_monitor.php": "03c2ccea3e4882f29191e76535bd9eba",
-                "/lang/german/extra/admin/bx_security_monitor.php": "1a1bc0c68e254fe9340f1aa00fc0f93c",
-                "/lang/german/modules/system/bx_security_monitor.php": "44fa0f7d8610a22f4848fa99e31e6d3c"
+                "/includes/data/xss_before_secure.original.php": "f076282d592d74d44fa01659c4ca00ef",
+                "/includes/data/xss_before_secure.patched.php": "f15efec412c9d5c31c1c3e73aec54812",
+                "/includes/data/xss_secure.original.php": "f6755a8be30b09957d1627fd5dfe1ec0",
+                "/includes/data/xss_secure.patched.php": "079bcf67e751e9e5022e5832340d2279",
+                "/includes/extra/application_top/application_top_begin/bx_security_bootstrap.php": "51921fac71a9e9d8c5506f7dc3f0743b",
+                "/includes/extra/application_top/application_top_end/bx_security_session.php": "921c18dffde19a5e1de341d77153601a",
+                "/includes/modules/bx_admin_login_guard.php": "3cdd30191691878398bd6d994c2e5755",
+                "/includes/modules/bx_guard.php": "654c6d21296ffcc93eb54e6162132b83",
+                "/lang/english/extra/admin/bx_security_monitor.php": "1dd755b980afded0716d6227a5c47979",
+                "/lang/english/modules/system/bx_security_monitor.php": "2baa5ece01fe780aed735a6e4647daff",
+                "/lang/german/extra/admin/bx_security_monitor.php": "23e962ae8529012280d556586348b454",
+                "/lang/german/modules/system/bx_security_monitor.php": "62600707bf1a1aa3b62d2b3e24dc1fbb"
             }
         },
         "shop-vendor-mmlc": {

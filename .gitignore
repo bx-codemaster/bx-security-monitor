@@ -1,0 +1,40 @@
+# Dependencies & Build
+vendor/
+node_modules/
+dist/
+tests/
+*.zip
+*.sha256
+
+# Cache & Temp
+cache/
+*.tmp
+*.log
+.tmp/
+
+# IDE & Editor
+.idea/
+.vscode/
+.claude/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+CLAUDE.md
+
+# Environment & Secrets
+.env
+.env.local
+*.pem
+*.key
+*.crt
+
+# Test & Coverage
+coverage/
+.phpunit.result.cache
+
+# OS & Misc
+*.bak
+*.orig
+*.rej

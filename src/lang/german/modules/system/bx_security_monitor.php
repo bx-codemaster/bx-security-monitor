@@ -20,7 +20,8 @@ $description = '
 <details class="bxac-card">
 	<summary class="bxac-summary" style="list-style: none; display: inline-flex; align-items: center; gap: 8px; width: 100%;">
     <span class="bxac-arrow" style="font-size: 2rem;">▸</span>
-    <span class="bxac-title">' . xtc_image(DIR_WS_ICONS.'heading/bx-security-monitor.png', 'BX Security Monitor', '', '', 'style="max-height: 40px; vertical-align: middle; margin-right: 8px; cursor: pointer;"') . '<strong>BX Security Monitor</strong></span>
+    ' . xtc_image(DIR_WS_ICONS.'heading/bx-security-monitor.png', 'BX Security Monitor', '', '', 'style="max-height: 40px; vertical-align: middle; margin-right: 8px; cursor: pointer;"') . '
+    <span class="bxac-title">BX Security Monitor</span>
   </summary>
   <div class="bxac-body">
     <h3 style="margin-top: 0;">Modul zur Sicherheitsüberwachung</h3>
@@ -30,8 +31,9 @@ $description = '
   </div>
 </details>';
 
-if((!defined('MODULE_BX_SECURITY_MONITOR_STATUS')) || (MODULE_BX_SECURITY_MONITOR_STATUS != 'True') && basename($_SERVER['PHP_SELF']) == 'module_export.php') {
-	$description .= '<p><a class="button btnbox but_red" style="text-align:center;" onclick="return confirmLink(\'Alle Dateien löschen?\', \'\' ,this);" href="'.xtc_href_link(FILENAME_MODULE_EXPORT, 'set=system&module=bx_security_monitor&action=custom').'">Alle Moduldateien löschen</a></p>';
+if (!defined('MODULE_BX_SECURITY_MONITOR_STATUS') && basename($_SERVER['PHP_SELF']) == 'module_export.php') {
+	$description .= xtc_draw_form('bx_security_delete_files', FILENAME_MODULE_EXPORT, 'set=system&module=bx_security_monitor&action=custom', 'post', 'onsubmit="return confirm(\'Alle Moduldateien löschen?\');"')
+    . '<p><button class="button btnbox but_red" type="submit">Alle Moduldateien löschen</button></p></form>';
 }
 
 define('MODULE_BX_SECURITY_MONITOR_STATUS_DESC', $description);
@@ -65,3 +67,6 @@ define('MODULE_BX_SECURITY_MANUAL_RULES_CACHE_DESC', 'Automatisch erzeugter Cach
 define('MODULE_BX_SECURITY_MONITOR_TEXT_COULD_NOT_BE_DELETED', 'FEHLER! Modul <strong>' . constant('MODULE_BX_SECURITY_MONITOR_STATUS_TITLE') . '</strong> konnte nicht gelöscht werden.');
 define('MODULE_BX_SECURITY_MONITOR_TEXT_SUCCESSFULLY_REMOVED', 'Erfolg! Modul <strong>' . constant('MODULE_BX_SECURITY_MONITOR_STATUS_TITLE') . '</strong> wurde erfolgreich entfernt.');
 define('MODULE_BX_SECURITY_MONITOR_TEXT_REMOVAL_INCOMPLETE', 'FEHLER! Modul <strong>' . constant('MODULE_BX_SECURITY_MONITOR_STATUS_TITLE') . '</strong> konnte nicht vollständig entfernt werden.');
+define('MODULE_BX_SECURITY_MONITOR_TEXT_INVALID_REMOVAL_REQUEST', 'Das Löschen der Moduldateien erfordert eine POST-Anfrage.');
+define('MODULE_BX_SECURITY_MONITOR_TEXT_UNINSTALL_FIRST', 'Bitte das Modul vor dem Löschen der Dateien deinstallieren.');
+define('MODULE_BX_SECURITY_MONITOR_TEXT_BACKUP_REMAINS', 'Core-Patch-Backup oder Metadaten sind noch vorhanden. Bitte zuerst die Wiederherstellung prüfen.');

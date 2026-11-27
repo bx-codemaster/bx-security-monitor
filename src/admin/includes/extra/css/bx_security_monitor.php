@@ -4,27 +4,7 @@
   if (basename($_SERVER['PHP_SELF']) == 'bx_security_monitor.php') {
 ?>
 <style>
-
   /* BX Attribute Lock Admin Styles */
-
-  #headboard {
-    display: flex; 
-    flex-direction: row; 
-    justify-content: flex-start;
-    width: 100%;
-    align-items: center; 
-    background: #AF417E; 
-    color: #ffffff; 
-    border-radius: 4px; 
-    margin-bottom: 10px; 
-    padding: 4px 0 2px 0;
-    line-height: 30px;
-  }
-
-  #headboard .main {
-    margin: 5px 10px;
-  }
-
   .fixed_messageStack {
     position: fixed;
     top: 88px;

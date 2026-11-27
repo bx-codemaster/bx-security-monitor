@@ -136,7 +136,9 @@ $allowed_actions = array('save_settings',
                          'block_to_whitelist', 
                          'delete_whitelist', 
                          'clear_events', 
-                         'clear_expired');
+                         'clear_expired',
+                         'patch_xss',
+                         'patch_login');
 
 if (isset($_GET['action']) && in_array((string)$_GET['action'], $allowed_actions, true)) {
     $action = (string)$_GET['action'];
@@ -165,6 +167,22 @@ if ($anker !== '') {
 }
 
 switch($action) {
+    case 'patch_xss':
+    case 'patch_login':
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $messageStack->add_session(BX_SECURITY_MONITOR_CORE_PATCH_INVALID_REQUEST, 'warning');
+            xtc_redirect($anker_url);
+        }
+        require_once(DIR_FS_LANGUAGES . $_SESSION['language'] . '/modules/system/bx_security_monitor.php');
+        require_once(DIR_FS_ADMIN . 'includes/modules/system/bx_security_monitor.php');
+        $security_monitor = new bx_security_monitor();
+        if ($action === 'patch_xss') {
+            $security_monitor->bx_patch_xss_secure();
+        } else {
+            $security_monitor->bx_patch_login_admin();
+        }
+        xtc_redirect($anker_url);
+        break;
     case 'save_settings':
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $messageStack->add_session(BX_SECURITY_MONITOR_INVALID_SAVE_CALL, 'warning');
@@ -347,12 +365,12 @@ $check_fn = 'msec_check_patch_status';
 
 // Check if the login_admin.php patch is applied
 $admin_patch_status = function_exists($check_fn)
-    ? $check_fn(DIR_FS_CATALOG . 'login_admin.php', DIR_FS_CATALOG . 'login_admin.php.bx-backup')
+    ? $check_fn(DIR_FS_CATALOG . 'login_admin.php', DIR_FS_CATALOG . 'login_admin.php.bx-backup', 'login_admin')
     : 'unknown';
 
 // Check if the xss_secure.php patch is applied
 $xss_patch_status = function_exists($check_fn)
-    ? $check_fn(DIR_FS_CATALOG . 'includes/xss_secure.php', DIR_FS_CATALOG . 'includes/xss_secure.php.bx-backup')
+    ? $check_fn(DIR_FS_CATALOG . 'includes/xss_secure.php', DIR_FS_CATALOG . 'includes/xss_secure.php.bx-backup', 'xss_secure')
     : 'unknown';
 
 require_once (DIR_WS_INCLUDES.'head.php');
@@ -399,6 +417,10 @@ $messageStack->output();
                 'ok'             => BX_SECURITY_MONITOR_XSS_SECURE_PHP_OK,
                 'unknown'        => BX_SECURITY_MONITOR_XSS_SECURE_PHP_STATUS_UNKNOWN,
             ]);
+            if ($xss_patch_status !== 'ok') {
+                echo xtc_draw_form('patch_xss_form', FILENAME_BX_SECURITY_MONITOR, 'action=patch_xss');
+                echo '<button class="msec-button" type="submit">' . BX_SECURITY_MONITOR_XSS_PATCH_APPLY . '</button></form>';
+            }
         ?>
       </div>
 
@@ -413,6 +435,10 @@ $messageStack->output();
                 'ok'             => BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_OK,
                 'unknown'        => BX_SECURITY_MONITOR_LOGIN_ADMIN_PHP_STATUS_UNKNOWN,
             ]);
+            if ($admin_patch_status !== 'ok') {
+                echo xtc_draw_form('patch_login_form', FILENAME_BX_SECURITY_MONITOR, 'action=patch_login');
+                echo '<button class="msec-button" type="submit">' . BX_SECURITY_MONITOR_LOGIN_PATCH_APPLY . '</button></form>';
+            }
           ?>
       </div>
 
@@ -422,7 +448,7 @@ $messageStack->output();
         <tr>
           <td class="boxCenterLeft">
 
-            <div id="headboard">
+            <div class="bx-headboard">
               <div class="main">
                 <?php echo BX_SECURITY_MONITOR_TITLE_NOTE; ?>
               </div>

@@ -38,9 +38,9 @@ Prüft den **Inhalt** von `$_GET`, `$_POST` und `$_COOKIE` gegen eine Reihe von 
 - SQL-Fragmente: `select`, `concat`, sowie Muster wie `... or ... =` / `... and ... like`
 
 Bei Treffer:
-- IP wird für **1 Stunde** in `log/xss_blacklist.log` gesperrt (Flatfile, kein DB-Eintrag)
+- Eine automatische IP-Sperre in `log/xss_blacklist.log` erfolgt nur, wenn `XSS_BLACKLIST` und `XSS_AUTO_BLACKLIST` aktiviert sind; die voreingestellte Sperrdauer beträgt eine Stunde.
 - Optional wird ein ausführlicher Vorfallbericht geloggt (`log/xss_attacks_*.log.gz`)
-- Weiterleitung auf `error.html`
+- Weiterleitung auf `error.html` bei aktiver Blacklist, andernfalls auf `index.php`
 
 **Wichtig für die Fehlersuche:** Diese Regeln sind **breit** gefasst – z. B. matcht `select`/`concat` jeden Teilstring, nicht nur echte SQL-Syntax. Ein Firmenname wie "Selective Consulting" oder ein Feld mit "concatenated_id" kann bereits auslösen. Das ist der häufigste Grund für unerwartete Sperren bei legitimen Kunden.
 
@@ -93,7 +93,7 @@ Ursprünglich kannte `xss_secure.php` unsere `msec_whitelist`-Tabelle nicht. Das
 
 - Jede Änderung an der Whitelist im Admin-Panel (Hinzufügen/Entfernen einer IP) schreibt automatisch eine reine Textdatei: `log/msec_whitelist_mirror.log` (eine IP pro Zeile).
 - Das Schreiben erfolgt atomar (`.tmp`-Datei + `rename()`), damit nie eine unvollständige Datei gelesen wird.
-- `xss_secure.php` liest diese Datei vor jeder Blacklist-Prüfung – reines Datei-Lesen, keine DB nötig, funktioniert also auch zu diesem frühen Zeitpunkt.
+- `xss_secure.php` liest diese Datei vor jeder Blacklist-Prüfung – reines Datei-Lesen, keine DB nötig, funktioniert also auch zu diesem frühen Zeitpunkt. IP-Adressen werden für den Vergleich normalisiert. Die Prüfung der Eingabewerte bleibt auch für Whitelist-Einträge aktiv.
 
 **Praktische Folge:** Eine IP, die im Security-Monitor-Panel whitelistet wird, ist jetzt automatisch auch für `xss_secure.php` von der Sperre ausgenommen – ohne dass beide Systeme sich sonst irgendwie kennen müssen.
 
@@ -108,6 +108,16 @@ Zusätzlich zur Whitelist-Synchronisation patchen wir zwei Core-Dateien direkt, 
 
 Beide Patches werden bei der Modul-Installation automatisch eingespielt, mit Backup der Originaldatei und Hash-Verifikation, um stille Core-Updates zu erkennen. Der aktuelle Patch-Status ist im Security-Monitor-Panel sichtbar (grün = aktiv und unverändert, gelb/orange = Core wurde seither verändert oder Patch ist inaktiv).
 
+Nach einem Shop-Update kann der XSS-Patch über **„XSS-Patch installieren / aktualisieren“** im Security-Monitor erneut eingespielt werden. Dies erfolgt nur, wenn die Shop-Datei exakt der mitgelieferten Originalreferenz entspricht oder ein anhand seiner Metadaten verifizierter Patch auf dieser Originalversion beruht. Ein älteres Backup und seine Metadaten werden bei einem Core-Update als `.bx-backup.previous` bzw. `.bx-backup.meta.previous` aufbewahrt. Besteht bereits ein solches Archiv, muss es vor einem weiteren Update geprüft und separat gesichert werden. Unbekannte Änderungen oder beschädigte Metadaten erfordern eine manuelle Prüfung; ein altes Backup wird nicht über eine aktualisierte Shop-Datei zurückgespielt.
+
+Wenn die Shop-Datei bereits exakt einem anderen, eindeutig registrierten Patch entspricht und Backup und Metadaten zum bekannten vorherigen Referenzpaar passen, kann auch dieser Zustand repariert oder deinstalliert werden. Dabei wird das alte Backup archiviert und die passende mitgelieferte Originalreferenz als neues Backup verwendet. Diese Referenz ist kein Backup individueller Änderungen, die vor dem Überschreiben der Datei bestanden haben könnten.
+
+Die Funktion zum Löschen der Moduldateien ist erst nach der Deinstallation verfügbar. Sie verweigert das Löschen, solange ein aktives Core-Patch-Backup oder dessen Metadaten vorhanden sind. Archivierte `.previous`-Backups bleiben erhalten. Bei symbolischen Links wird nur der Link entfernt, nicht sein Ziel.
+
+Für beide Core-Dateien sind die unterstützten Referenzpaare in `msec_core_patch_registry()` in `admin/includes/extra/functions/bx_security_monitor.php` registriert. Die vorhandenen Dateien bilden jeweils das erste Paar für den hier vorliegenden 3.3.0-Stand; die Kennung beschreibt die Referenz und beweist weder die Herkunft der Datei noch die Unterstützung jeder Installation dieser Shop-Version. Entscheidend für die Auswahl ist der SHA-256-Hash der Originaldatei bzw. des verifizierten Backups, nicht die Shop-Versionsnummer. Die gewählte Kennung wird bei neuen Installationen in den Backup-Metadaten gespeichert; vorhandene Metadaten ohne Kennung bleiben verwendbar.
+
+Für eine weitere Shop-Dateiversion werden nach Prüfung der offiziellen Originaldatei und der darauf basierenden Moduländerung zwei neue Dateien unter `includes/data/` abgelegt und als neues Paar in die Referenzliste eingetragen. Dateinamen müssen sich von den vorhandenen unterscheiden; ein Originalhash darf pro Core-Datei nur einmal vorkommen. Beide Dateien und die aktualisierte Liste müssen mit dem Modul ausgeliefert werden. Unbekannte Originaldateien werden nicht übernommen oder überschrieben. Nach einem Update können beide Patches im Security-Monitor gezielt installiert bzw. aktualisiert werden.
+
 **Für die Fehlersuche wichtig:** Falls nach einem Shop-Core-Update Login-Versuche plötzlich nicht mehr im Security-Monitor auftauchen, zuerst den Patch-Status im Panel prüfen – ein Core-Update kann die gepatchten Dateien überschrieben haben.
 
 ---
@@ -120,7 +130,7 @@ Beide Patches werden bei der Modul-Installation automatisch eingespielt, mit Bac
 | Kunde/Bot wird beim Aufruf einer bestimmten URL geblockt | `bx_guard.php` | Security-Monitor-Panel → Events/Blocks, dort Grund & Kategorie |
 | Admin kann sich nicht einloggen, obwohl Zugangsdaten korrekt | Möglicher Fehlalarm im Login-Guard oder aktive Sperre | Security-Monitor-Panel → Blocks, IP dort suchen |
 | Whitelistete IP wird trotzdem gesperrt | Mirror-Datei nicht aktuell (z. B. nach manuellem DB-Eingriff) | Whitelist im Panel neu speichern (triggert Re-Sync), danach `log/msec_whitelist_mirror.log` auf Aktualität prüfen |
-| Core-Patch-Status zeigt "mismatch" oder "target_missing" | Shop-Core-Update hat gepatchte Datei überschrieben | Patch im Security-Monitor-Panel neu einspielen |
+| Core-Patch-Status zeigt "mismatch" oder "target_missing" | Shop-Core-Update oder andere Dateiänderung | Shop-Datei und Backup prüfen; den XSS-Patch gegebenenfalls im Security-Monitor-Panel aktualisieren |
 
 ---
 
